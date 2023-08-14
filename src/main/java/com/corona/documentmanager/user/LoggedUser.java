@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class LoggedUser implements UserDetails {
-    private User user;
+    public User user;
     public LoggedUser(User user) {
         this.user = user;
     }
@@ -27,6 +27,7 @@ public class LoggedUser implements UserDetails {
         return this.user.getPassword();
     }
 
+    public Long getUserId() { return this.user.getId(); }
     @Override
     public String getUsername() {
         return this.user.getUsername();

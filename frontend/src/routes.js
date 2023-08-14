@@ -1,87 +1,75 @@
-/*!
+import React from "react";
 
-=========================================================
-* Light Bootstrap Dashboard React - v2.0.0
-=========================================================
+import { Icon } from "@chakra-ui/react";
+import {
+  MdBarChart,
+  MdPerson,
+  MdHome,
+  MdLock,
+  MdOutlineShoppingCart,
+} from "react-icons/md";
 
-* Product Page: https://www.creative-tim.com/product/light-bootstrap-dashboard-react
-* Copyright 2020 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/light-bootstrap-dashboard-react/blob/master/LICENSE.md)
+// Admin Imports
+import MainDashboard from "views/admin/default";
+import NFTMarketplace from "views/admin/marketplace";
+import Profile from "views/admin/profile";
+import DataTables from "views/admin/dataTables";
+import RTL from "views/admin/rtl";
 
-* Coded by Creative Tim
+// Auth Imports
+import SignInCentered from "views/auth/signIn";
 
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-import Dashboard from "./views/Dashboard.js";
-import UserProfile from "./views/UserProfile.js";
-import TableList from "./views/TableList.js";
-import Typography from "./views/Typography.js";
-import Icons from "./views/Icons.js";
-import Maps from "./views/Maps.js";
-import Notifications from "./views/Notifications.js";
-import Upgrade from "./views/Upgrade.js";
-
-const dashboardRoutes = [
+const routes = [
   {
-    upgrade: true,
-    path: "/upgrade",
-    name: "Upgrade to PRO",
-    icon: "nc-icon nc-alien-33",
-    component: Upgrade,
-    layout: "/home",
+    name: "Main Dashboard",
+    layout: "/admin",
+    path: "/default",
+    icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
+    component: MainDashboard,
   },
   {
-    path: "/dashboard",
-    name: "Dashboard",
-    icon: "nc-icon nc-chart-pie-35",
-    component: Dashboard,
-    layout: "/home",
+    name: "NFT Marketplace",
+    layout: "/admin",
+    path: "/nft-marketplace",
+    icon: (
+      <Icon
+        as={MdOutlineShoppingCart}
+        width='20px'
+        height='20px'
+        color='inherit'
+      />
+    ),
+    component: NFTMarketplace,
+    secondary: true,
   },
   {
-    path: "/user",
-    name: "User Profile",
-    icon: "nc-icon nc-circle-09",
-    component: UserProfile,
-    layout: "/home",
+    name: "Data Tables",
+    layout: "/admin",
+    icon: <Icon as={MdBarChart} width='20px' height='20px' color='inherit' />,
+    path: "/data-tables",
+    component: DataTables,
   },
   {
-    path: "/table",
-    name: "Table List",
-    icon: "nc-icon nc-notes",
-    component: TableList,
-    layout: "/home",
+    name: "Profile",
+    layout: "/admin",
+    path: "/profile",
+    icon: <Icon as={MdPerson} width='20px' height='20px' color='inherit' />,
+    component: Profile,
   },
   {
-    path: "/typography",
-    name: "Typography",
-    icon: "nc-icon nc-paper-2",
-    component: Typography,
-    layout: "/home",
+    name: "Sign In",
+    layout: "/auth",
+    path: "/sign-in",
+    icon: <Icon as={MdLock} width='20px' height='20px' color='inherit' />,
+    component: SignInCentered,
   },
   {
-    path: "/icons",
-    name: "Icons",
-    icon: "nc-icon nc-atom",
-    component: Icons,
-    layout: "/home",
-  },
-  {
-    path: "#maps",
-    name: "Maps",
-    icon: "nc-icon nc-pin-3",
-    component: Maps,
-    layout: "/home",
-  },
-  {
-    path: "#notifications",
-    name: "Notifications",
-    icon: "nc-icon nc-bell-55",
-    component: Notifications,
-    layout: "/home",
+    name: "RTL Admin",
+    layout: "/rtl",
+    path: "/rtl-default",
+    icon: <Icon as={MdHome} width='20px' height='20px' color='inherit' />,
+    component: RTL,
   },
 ];
 
-export default dashboardRoutes;
+export default routes;

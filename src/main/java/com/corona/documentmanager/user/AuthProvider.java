@@ -23,6 +23,8 @@ public class AuthProvider implements AuthenticationProvider {
         try {
             String username = authentication.getName();
             String password = authentication.getCredentials().toString();
+            System.out.println("password: " + password + " =>> " + passwordEncoder.encode(password));
+            System.out.println("username: " + username);
             LoggedUser loggingUser = userDetailsService.loadUserByUsername(username);
             System.out.println("password: " + password);
             System.out.println("username: " + username);

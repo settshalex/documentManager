@@ -1,10 +1,13 @@
 package com.corona.documentmanager.user;
 
+import com.corona.documentmanager.document.Document;
+import com.corona.documentmanager.documentComments.DocumentComment;
+import com.corona.documentmanager.documentVersioning.DocumentVersioning;
 import lombok.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Builder
 @AllArgsConstructor
@@ -25,6 +28,18 @@ public class User {
 
     @Column(name = "password", length = 200)
     private String password;
+
+    @OneToMany(mappedBy = "createdBy")
+    private Set<DocumentComment> documentComments = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "createdBy")
+    private Set<Document> documents = new LinkedHashSet<>();
+
+    @Column(name = "role", length = 30)
+    private String role;
+
+    @OneToMany(mappedBy = "createdBy")
+    private Set<DocumentVersioning> documentVersionings = new LinkedHashSet<>();
 
     public Long getId() {
         return id;
