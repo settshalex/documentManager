@@ -38,7 +38,7 @@
   },
   "scripts": {
     "start": "node_modules/.bin/react-scripts start",
-    "build": "node_modules/.bin/react-scripts build && mv build/static/js/main*.js ../target/classes/static/js/bundle.js",
+    "build": "node_modules/.bin/react-scripts build && mv build/static/js/main*.js ../target/classes/static/assets/js/bundle.js",
     "test": "node_modules/.bin/react-scripts test",
     "eject": "node_modules/.bin/react-scripts eject",
     "predeploy": "npm run build",
@@ -69,5 +69,9 @@
   "devDependencies": {
     "@babel/preset-env": "^7.22.9",
     "gh-pages": "^3.2.3"
-  }
+  },
+  "description": "![version](https://img.shields.io/badge/version-1.3.0-brightgreen.svg) ![license](https://img.shields.io/badge/license-MIT-blue.svg) [![GitHub issues open](https://img.shields.io/github/issues/horizon-ui/horizon-ui-chakra.svg?maxAge=2592000)](https://github.com/horizon-ui/horizon-ui-chakra/issues?q=is%3Aopen+is%3Aissue)",
+  "main": "webpack.config.js",
+  "author": "",
+  "license": "ISC"
 }

@@ -2,7 +2,7 @@ package com.corona.documentmanager.File;
 
 public class FileFactory extends AbstractFactory{
     @Override
-    public File getFile(String type) {
+    public File getFileManager(String type) {
         if (type.startsWith("text/")){
             return new TextDocument();
         }
