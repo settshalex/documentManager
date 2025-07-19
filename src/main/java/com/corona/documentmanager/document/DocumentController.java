@@ -30,6 +30,7 @@ public class DocumentController {
     private final DocumentRepository documentRepository;
     private final DocumentTypeRepository documentTypeRepository;
 
+    @Autowired
     public DocumentController(DocumentService documentService,
                               DocumentTypeRepository documentTypeRepository, DocumentRepository documentRepository) {
         this.documentService = documentService;
@@ -79,7 +80,7 @@ public class DocumentController {
         }
         return ResponseEntity.ok("File uploaded successfully.");
     }
-    @PostMapping("/upload/multiple")
+    @PostMapping("/api/upload/multiple")
     public ResponseEntity<?> uploadMultipleFiles(
             @RequestParam("files") MultipartFile[] files,
             @RequestParam("title") String baseTitle,

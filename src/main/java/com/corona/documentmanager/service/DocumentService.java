@@ -7,6 +7,7 @@ import com.corona.documentmanager.File.File;
 import com.corona.documentmanager.File.AbstractFactory;
 import com.corona.documentmanager.documentType.DocumentType;
 import com.corona.documentmanager.user.LoggedUser;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,11 +17,13 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Service
+@Transactional
 public class DocumentService {
 
     private final FileFactory fileFactory;
     private final DocumentRepository documentRepository;
 
+    @Autowired
     public DocumentService(FileFactory fileFactory, DocumentRepository documentRepository) {
         this.fileFactory = fileFactory;
         this.documentRepository = documentRepository;
@@ -38,7 +41,7 @@ public class DocumentService {
         try {
             String mimeType = file.getContentType();
             File fileManager = fileFactory.getFileManager(mimeType);
-
+            System.out.println("mimeType " + mimeType + " =>> " + fileManager.getClass().getSimpleName() + "");
             Document document = fileManager.createNewDocument(
                     file,
                     user,

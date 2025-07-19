@@ -57,6 +57,12 @@ import {
 } from "views/admin/default/variables/columnsData";
 import tableDataCheck from "views/admin/default/variables/tableDataCheck.json";
 import tableDataComplex from "views/admin/default/variables/tableDataComplex.json";
+import {
+    Grid,
+    GridItem,
+    Container,
+} from '@chakra-ui/react';
+import MultipleFileUpload from 'components/MultipleFileUpload';
 
 export default function UserReports() {
   // Chakra Color Mode
@@ -70,48 +76,10 @@ export default function UserReports() {
         columns={{ base: 1, md: 2, lg: 2, "2xl": 6 }}
         gap='20px'
         mb='20px'>
-          <FormControl>
-              <FormLabel
-                  display='flex'
-                  ms='4px'
-                  fontSize='sm'
-                  fontWeight='500'
-                  color={textColor}
-                  mb='8px'>
-                  Title<Text color={brandStars}>*</Text>
-              </FormLabel>
-              <Input
-                  isRequired={true}
-                  variant='auth'
-                  fontSize='sm'
-                  ms={{ base: "0px", md: "0px" }}
-                  type='text'
-                  name='title'
-                  mb='24px'
-                  fontWeight='500'
-                  size='lg'
-              />
-              <FormLabel
-                  display='flex'
-                  ms='4px'
-                  fontSize='sm'
-                  fontWeight='500'
-                  color={textColor}
-                  mb='8px'>
-                  Description
-              </FormLabel>
-              <Input
-                  isRequired={false}
-                  variant='auth'
-                  fontSize='sm'
-                  ms={{ base: "0px", md: "0px" }}
-                  type='textarea'
-                  name='description'
-                  mb='24px'
-                  fontWeight='500'
-                  size='lg'
-              />
-          </FormControl>
+          <GridItem colSpan={{ base: 12, md: 6 }}>
+              <MultipleFileUpload />
+          </GridItem>
+
       </SimpleGrid>
 
       <SimpleGrid columns={{ base: 1, md: 2, xl: 2 }} gap='20px' mb='20px'>

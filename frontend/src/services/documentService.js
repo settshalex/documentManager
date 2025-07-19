@@ -8,7 +8,7 @@ export const uploadMultipleFiles = async (files, baseTitle, description, onProgr
     formData.append('title', baseTitle);
     formData.append('description', description);
 
-    const response = await fetch('/api/documents/upload/multiple', {
+    const response = await fetch('/api/upload/multiple', {
         method: 'POST',
         body: formData,
     });

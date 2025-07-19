@@ -9,6 +9,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 
 @Component
 public class AuthProvider implements AuthenticationProvider {
@@ -26,6 +28,8 @@ public class AuthProvider implements AuthenticationProvider {
             System.out.println("password: " + password + " =>> " + passwordEncoder.encode(password));
             System.out.println("username: " + username);
             LoggedUser loggingUser = userDetailsService.loadUserByUsername(username);
+            List<User> users = userDetailsService.list();
+            System.out.println("users: " + users);
             System.out.println("password: " + password);
             System.out.println("username: " + username);
             System.out.println("user->psw: " + loggingUser.getPassword());
