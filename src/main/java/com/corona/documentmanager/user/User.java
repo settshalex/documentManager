@@ -2,7 +2,6 @@ package com.corona.documentmanager.user;
 
 import com.corona.documentmanager.document.Document;
 import com.corona.documentmanager.documentComments.DocumentComment;
-import com.corona.documentmanager.documentVersioning.DocumentVersioning;
 import lombok.*;
 
 import javax.persistence.*;
@@ -37,9 +36,6 @@ public class User {
 
     @Column(name = "role", length = 30)
     private String role;
-
-    @OneToMany(mappedBy = "createdBy")
-    private Set<DocumentVersioning> documentVersionings = new LinkedHashSet<>();
 
     public Long getId() {
         return id;

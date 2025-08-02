@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.SAXException;
@@ -37,7 +38,6 @@ public class DocumentController {
         this.documentTypeRepository = documentTypeRepository;
         this.documentRepository = documentRepository;
     }
-
 
     @GetMapping("/api/document/{id}")
     public String documentDetails(@PathVariable Long id) {
@@ -68,7 +68,13 @@ public class DocumentController {
             System.out.println("mime_type");
             System.out.println(mime_type);
             File fileManager = fileFactory.getFileManager(mime_type);
-            Optional<DocumentType> docType = documentTypeRepository.findByType("default");
+            Optional<DocumentType> docType = documentTypeRepository.findByType(mime_type);
+            if (docType.isEmpty()) {
+                DocumentType documentType = new DocumentType();
+                documentType.setType(mime_type);
+                documentTypeRepository.save(documentType);
+                docType = Optional.of(documentType);
+            }
             Document newDocument = fileManager.createNewDocument(file, customUser, title, description, mime_type, docType);
             System.out.println("----------------");
             System.out.println(customUser);
@@ -88,15 +94,19 @@ public class DocumentController {
             @ModelAttribute LoggedUser customUser) {
 
         try {
-            Optional<DocumentType> docType = documentTypeRepository.findByType("default");
-
             // Crea una lista di CompletableFuture per ogni file
             List<CompletableFuture<Document>> futures = new ArrayList<>();
 
             for (int i = 0; i < files.length; i++) {
                 MultipartFile file = files[i];
                 String title = baseTitle + "_" + (i + 1);
-
+                Optional<DocumentType> docType = documentTypeRepository.findByType(file.getContentType());
+                if (docType.isEmpty()) {
+                    DocumentType documentType = new DocumentType();
+                    documentType.setType(file.getContentType());
+                    documentTypeRepository.save(documentType);
+                    docType = Optional.of(documentType);
+                }
                 CompletableFuture<Document> future = documentService.processFileAsync(
                         file,
                         title,

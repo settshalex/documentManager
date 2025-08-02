@@ -6,13 +6,17 @@ import com.corona.documentmanager.document.DocumentRepository;
 import com.corona.documentmanager.File.File;
 import com.corona.documentmanager.File.AbstractFactory;
 import com.corona.documentmanager.documentType.DocumentType;
+import com.corona.documentmanager.exception.DocumentNotFoundException;
 import com.corona.documentmanager.user.LoggedUser;
+import com.corona.documentmanager.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -41,7 +45,6 @@ public class DocumentService {
         try {
             String mimeType = file.getContentType();
             File fileManager = fileFactory.getFileManager(mimeType);
-            System.out.println("mimeType " + mimeType + " =>> " + fileManager.getClass().getSimpleName() + "");
             Document document = fileManager.createNewDocument(
                     file,
                     user,
@@ -50,12 +53,19 @@ public class DocumentService {
                     mimeType,
                     docType
             );
-
+            document.setLastUpdated(Instant.now());
             Document savedDocument = documentRepository.save(document);
             return CompletableFuture.completedFuture(savedDocument);
 
         } catch (Exception e) {
             return CompletableFuture.failedFuture(e);
         }
+    }
+
+    public List<Document> findDocumentsByUser(User user){
+        return documentRepository.findByCreatedBy(user);
+    }
+    public Document findDocumentById(Long id){
+        return documentRepository.findById(id).orElseThrow(()->new DocumentNotFoundException("Documento non trovato"));
     }
 }

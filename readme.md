@@ -69,7 +69,7 @@ create unique index documents_id_uindex
     on public.documents (id);
 
 create unique index documents_sha256_uindex
-    on public.documents (sha256);
+    on public.documents (sha256, created_by);
 
 create index documents_text_index
     on public.documents using gin (text);
@@ -119,6 +119,16 @@ alter table public.document_versioning
 
 create unique index document_versioning_id_uindex
     on public.document_versioning (id);
+    
+CREATE TABLE document_shares (
+    id BIGSERIAL PRIMARY KEY,
+    document_id BIGINT NOT NULL REFERENCES documents(id),
+    shared_with_user_id BIGINT NOT NULL REFERENCES users(id),
+    shared_by_user_id BIGINT NOT NULL REFERENCES users(id),
+    shared_at TIMESTAMP NOT NULL,
+    permission VARCHAR(10) NOT NULL,
+    UNIQUE(document_id, shared_with_user_id)
+);
 
 
 ```

@@ -1,5 +1,6 @@
 package com.corona.documentmanager.document;
 
+import com.corona.documentmanager.user.LoggedUser;
 import com.corona.documentmanager.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

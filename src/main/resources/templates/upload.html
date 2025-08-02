@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Upload Multiplo File</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    .upload-container {
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 2rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+    }
+    .form-control {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #cbd5e0;
+      border-radius: 4px;
+    }
+    .drop-zone {
+      border: 2px dashed #cbd5e0;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      margin: 1rem 0;
+    }
+    .drop-zone:hover {
+      border-color: #4299e1;
+    }
+    .file-list {
+      margin: 1rem 0;
+    }
+    .file-item {
+      font-size: 0.875rem;
+      color: #4a5568;
+    }
+    .submit-button {
+      background-color: #4299e1;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .submit-button:hover {
+      background-color: #3182ce;
+    }
+    .alert {
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 4px;
+    }
+    .alert-success {
+      background-color: #c6f6d5;
+      color: #2f855a;
+    }
+    .alert-error {
+      background-color: #fed7d7;
+      color: #c53030;
+    }
+  </style>
+</head>
+<body>
+<div class="upload-container">
+  <h2>Upload Multiplo File</h2>
+
+  <!-- Messaggi di feedback -->
+  <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+  <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+  <form th:action="@{/api/document/}" method="POST" enctype="multipart/form-data">
+    <div class="form-group">
+      <label class="form-label" for="title">Titolo Base *</label>
+      <input type="text" id="title" name="title" class="form-control" required
+             placeholder="Inserisci il titolo base per i file">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="description">Descrizione</label>
+      <textarea id="description" name="description" class="form-control"
+                placeholder="Inserisci la descrizione per i file"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">File *</label>
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="files" name="file" multiple
+               style="display: none;" required>
+        <p>Trascina i file qui o clicca per selezionare</p>
+      </div>
+      <div id="fileList" class="file-list"></div>
+    </div>
+
+    <button type="submit" class="submit-button">Carica File</button>
+  </form>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('files');
+    const fileList = document.getElementById('fileList');
+
+    // Gestione del drag and drop
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.style.borderColor = '#4299e1';
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.style.borderColor = '#cbd5e0';
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.style.borderColor = '#cbd5e0';
+      fileInput.files = e.dataTransfer.files;
+      updateFileList();
+    });
+
+    fileInput.addEventListener('change', updateFileList);
+
+    function updateFileList() {
+      fileList.innerHTML = '';
+      Array.from(fileInput.files).forEach(file => {
+        const fileSize = (file.size / 1024).toFixed(2);
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item';
+        fileItem.textContent = `${file.name} (${fileSize} KB)`;
+        fileList.appendChild(fileItem);
+      });
+    }
+  });
+</script>
+</body>
+</html>
