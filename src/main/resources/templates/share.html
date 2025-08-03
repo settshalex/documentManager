@@ -41,7 +41,7 @@
         <tr th:each="share : ${shares}">
           <td th:text="${share.sharedWithUser.username}"></td>
           <td th:text="${share.sharedByUser.username}"></td>
-          <td th:text="${#temporals.format(share.sharedAt, 'dd-MM-yyyy HH:mm')}"></td>
+          <td th:text="${#dates.format(share.sharedAt, 'dd-MM-yyyy HH:mm')}"></td>
           <td th:text="${share.permission}"></td>
           <td>
             <button class="btn btn-danger btn-sm"
@@ -77,7 +77,11 @@
                 location.reload();
               }
             })
-            .catch(error => alert('Errore durante la condivisione'));
+            .catch(error => {
+              console.error('Errore:', error);
+              alert('Si è verificato un errore durante la condivisione');
+            });
+
   });
 
   function removeShare(shareId) {
