@@ -49,7 +49,7 @@ public class AuthController
         return "registration";
     }
 
-    @GetMapping("/home")
+    @GetMapping(value = { "/home", "/" })
     public String showHomeForm(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
