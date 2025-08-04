@@ -1,131 +1,95 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-  <title>Upload Multiplo File</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    .upload-container {
-      max-width: 600px;
-      margin: 2rem auto;
-      padding: 2rem;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-    }
-    .form-group {
-      margin-bottom: 1rem;
-    }
-    .form-label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: bold;
-    }
-    .form-control {
-      width: 100%;
-      padding: 0.5rem;
-      border: 1px solid #cbd5e0;
-      border-radius: 4px;
-    }
-    .drop-zone {
-      border: 2px dashed #cbd5e0;
-      padding: 2rem;
-      text-align: center;
-      cursor: pointer;
-      margin: 1rem 0;
-    }
-    .drop-zone:hover {
-      border-color: #4299e1;
-    }
-    .file-list {
-      margin: 1rem 0;
-    }
-    .file-item {
-      font-size: 0.875rem;
-      color: #4a5568;
-    }
-    .submit-button {
-      background-color: #4299e1;
-      color: white;
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .submit-button:hover {
-      background-color: #3182ce;
-    }
-    .alert {
-      padding: 1rem;
-      margin: 1rem 0;
-      border-radius: 4px;
-    }
-    .alert-success {
-      background-color: #c6f6d5;
-      color: #2f855a;
-    }
-    .alert-error {
-      background-color: #fed7d7;
-      color: #c53030;
-    }
-  </style>
+<head th:replace="~{fragments/header :: header('Carica Documenti')}">
 </head>
-<body>
-<div class="upload-container">
-  <h2>Upload Multiplo File</h2>
+<body class="d-flex flex-column min-vh-100">
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
-  <!-- Messaggi di feedback -->
-  <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
-  <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+<main class="container py-4">
+  <!-- Il tuo contenuto esistente qui -->
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <h4 class="mb-0">Carica Nuovi Documenti</h4>
+          <a th:href="@{/}" class="btn btn-light btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Torna alla lista
+          </a>
+        </div>
+        <div class="card-body p-4">
+          <div th:if="${successMessage}" class="alert alert-success" role="alert">
+            <i class="bi bi-check-circle me-2"></i>
+            <span th:text="${successMessage}"></span>
+          </div>
 
-  <form th:action="@{/api/document/}" method="POST" enctype="multipart/form-data">
-    <div class="form-group">
-      <label class="form-label" for="title">Titolo Base *</label>
-      <input type="text" id="title" name="title" class="form-control" required
-             placeholder="Inserisci il titolo base per i file">
-    </div>
+          <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-circle me-2"></i>
+            <span th:text="${errorMessage}"></span>
+          </div>
 
-    <div class="form-group">
-      <label class="form-label" for="description">Descrizione</label>
-      <textarea id="description" name="description" class="form-control"
-                placeholder="Inserisci la descrizione per i file"></textarea>
-    </div>
+          <form th:action="@{/api/document/}" method="POST"
+                enctype="multipart/form-data" class="needs-validation" novalidate>
+            <div class="mb-3">
+              <label for="title" class="form-label">Titolo Base *</label>
+              <input type="text" class="form-control" id="title"
+                     name="title" required>
+            </div>
 
-    <div class="form-group">
-      <label class="form-label">File *</label>
-      <div class="drop-zone" id="dropZone">
-        <input type="file" id="files" name="file" multiple
-               style="display: none;" required>
-        <p>Trascina i file qui o clicca per selezionare</p>
+            <div class="mb-3">
+              <label for="description" class="form-label">Descrizione</label>
+              <textarea class="form-control" id="description"
+                        name="description" rows="3"></textarea>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label">File *</label>
+              <div class="drop-zone rounded border-2 border-dashed p-4 text-center"
+                   id="dropZone">
+                <input type="file" id="files" name="file"
+                       multiple class="d-none" required>
+                <i class="bi bi-cloud-upload display-4"></i>
+                <p class="mt-2">Trascina i file qui o
+                  <span class="text-primary">clicca per selezionare</span>
+                </p>
+              </div>
+              <div id="fileList" class="mt-2 small"></div>
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-cloud-upload me-2"></i>Carica File
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-      <div id="fileList" class="file-list"></div>
     </div>
+  </div>
+</main>
 
-    <button type="submit" class="submit-button">Carica File</button>
-  </form>
-</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
 
-<script>
+<!-- Scripts specifici della pagina -->
+<script th:inline="javascript">
   document.addEventListener('DOMContentLoaded', function() {
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('files');
     const fileList = document.getElementById('fileList');
 
-    // Gestione del drag and drop
     dropZone.addEventListener('click', () => fileInput.click());
 
     dropZone.addEventListener('dragover', (e) => {
       e.preventDefault();
-      dropZone.style.borderColor = '#4299e1';
+      dropZone.classList.add('border-primary');
     });
 
     dropZone.addEventListener('dragleave', () => {
-      dropZone.style.borderColor = '#cbd5e0';
+      dropZone.classList.remove('border-primary');
     });
 
     dropZone.addEventListener('drop', (e) => {
       e.preventDefault();
-      dropZone.style.borderColor = '#cbd5e0';
+      dropZone.classList.remove('border-primary');
       fileInput.files = e.dataTransfer.files;
       updateFileList();
     });
@@ -136,10 +100,11 @@
       fileList.innerHTML = '';
       Array.from(fileInput.files).forEach(file => {
         const fileSize = (file.size / 1024).toFixed(2);
-        const fileItem = document.createElement('div');
-        fileItem.className = 'file-item';
-        fileItem.textContent = `${file.name} (${fileSize} KB)`;
-        fileList.appendChild(fileItem);
+        fileList.innerHTML += `
+                            <div class="text-muted">
+                                <i class="bi bi-file-earmark me-1"></i>
+                                ${file.name} (${fileSize} KB)
+                            </div>`;
       });
     }
   });
