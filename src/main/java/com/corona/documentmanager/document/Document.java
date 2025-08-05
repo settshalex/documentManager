@@ -1,17 +1,18 @@
 package com.corona.documentmanager.document;
 
 import com.corona.documentmanager.DocumentShare.DocumentShare;
+import com.corona.documentmanager.DocumentTags.DocumentTag;
 import com.corona.documentmanager.documentType.DocumentType;
 import com.corona.documentmanager.user.User;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
 
+
 import javax.persistence.*;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "documents")
@@ -60,6 +61,7 @@ public class Document {
     @Column(name = "data")
     private byte[] data;
 
+    @Getter
     @Setter
     @Lob
     @Column(name = "text")
@@ -84,17 +86,45 @@ public class Document {
     @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<DocumentShare> shares = new HashSet<>();
 
+    @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<DocumentTag> tags = new HashSet<>();
 
-    public String getSha256() {
-        return sha256;
+    public Set<DocumentShare> getShares() {
+        return shares != null ? shares : new HashSet<>();
     }
 
-    public String getText() {
-        return text;
+
+    public Set<String> getTags() {
+        return tags.stream()
+                .map(DocumentTag::getTag)
+                .collect(Collectors.toSet());
     }
 
-    public String getUniqueId() {
-        return uniqueId;
+    public void addTag(String tag) {
+        if (tag == null || tag.trim().isEmpty()) {
+            return;
+        }
+
+        if (!hasTag(tag)) {
+            DocumentTag documentTag = new DocumentTag();
+            documentTag.setDocument(this);
+            documentTag.setTag(tag);
+            tags.add(documentTag);
+        }
     }
+
+    public void removeTag(String tag) {
+        tags.removeIf(documentTag -> documentTag.getTag().equals(tag));
+    }
+
+    public boolean hasTag(String tag) {
+        return tags.stream()
+                .map(DocumentTag::getTag)
+                .anyMatch(t -> t.equals(tag));
+    }
+
+
+
+
 
 }

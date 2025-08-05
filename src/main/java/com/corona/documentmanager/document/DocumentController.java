@@ -1,4 +1,5 @@
 package com.corona.documentmanager.document;
+import com.corona.documentmanager.dto.DocumentTagDTO;
 import com.corona.documentmanager.service.DocumentService;
 import com.corona.documentmanager.File.File;
 import com.corona.documentmanager.File.FileFactory;
@@ -18,9 +19,7 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -145,5 +144,44 @@ public class DocumentController {
                 .badRequest()
                 .body("Error processing request: " + e.getMessage());
     }
+
+    @PostMapping("/api/document/{id}/tags")
+    public ResponseEntity<?> addTag(@PathVariable Long id, @RequestBody DocumentTagDTO tagDTO) {
+        Document document = documentService.findDocumentById(id);
+        if (document == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        document.addTag(tagDTO.getTag());
+        documentService.save(document);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/api/document/{id}/tags/{tag}")
+    public ResponseEntity<?> removeTag(@PathVariable Long id, @PathVariable String tag) {
+        Document document = documentService.findDocumentById(id);
+        if (document == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        document.removeTag(tag);
+        documentService.save(document);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/api/document/{id}/tags")
+    public ResponseEntity<Set<String>> getTags(@PathVariable Long id) {
+        Document document = documentService.findDocumentById(id);
+        if (document == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(
+                document.getTags() != null ? document.getTags() : new HashSet<>()
+        );
+    }
+
 
 }

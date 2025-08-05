@@ -129,6 +129,15 @@ CREATE TABLE document_shares (
     permission VARCHAR(10) NOT NULL,
     UNIQUE(document_id, shared_with_user_id)
 );
+CREATE TABLE document_tags (
+    id BIGSERIAL PRIMARY KEY,
+    document_id BIGINT NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+    tag VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(document_id, tag)
+);
+
+CREATE INDEX idx_document_tags_tag ON document_tags(tag);
 
 
 ```

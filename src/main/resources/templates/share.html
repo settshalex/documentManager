@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/layout}">
-<head>
-  <title>Condividi Documento</title>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header('I Tuoi Documenti')}">
 </head>
-<body>
-<div layout:fragment="content">
+<body class="d-flex flex-column min-vh-100">
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container py-4">
   <div class="row justify-content-center">
     <div class="col-md-8">
       <div class="card shadow-sm">
@@ -38,37 +37,36 @@
 
           <h5>Condivisioni Esistenti</h5>
           <div class="table-responsive mb-4">
-            <table class="table table-hover"
-                   th:if="${!document.shares.empty}">
-              <thead>
-              <tr>
-                <th>Utente</th>
-                <th>Permesso</th>
-                <th>Data Condivisione</th>
-                <th>Azioni</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr th:each="share : ${document.shares}">
-                <td th:text="${share.sharedWith.username}"></td>
-                <td>
-                                            <span class="badge"
-                                                  th:classappend="${share.permission == 'READ' ? 'bg-info' : 'bg-warning'}"
-                                                  th:text="${share.permission}"></span>
-                </td>
-                <td th:text="${share.formattedSharedAt}"></td>
-                <td>
-                  <form th:action="@{/documents/{docId}/share/{shareId}/delete(docId=${document.id},shareId=${share.id})}"
-                        method="post" style="display: inline;">
-                    <button type="submit" class="btn btn-danger btn-sm"
-                            onclick="return confirm('Sei sicuro di voler rimuovere questa condivisione?')">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </form>
-                </td>
-              </tr>
-              </tbody>
-            </table>
+              <table class="table table-hover" th:if="${!document.shares.empty}">
+                  <thead>
+                  <tr>
+                      <th>Utente</th>
+                      <th>Condiviso da</th>
+                      <th>Permesso</th>
+                      <th>Data Condivisione</th>
+                      <th>Azioni</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr th:each="share : ${document.shares}">
+                      <td th:text="${share.sharedWithUser.username}"></td>
+                      <td th:text="${share.sharedByUser.username}"></td>
+                      <td>
+                <span class="badge"
+                      th:classappend="${share.permission == 'READ' ? 'bg-info' : 'bg-warning'}"
+                      th:text="${share.permission}">
+                </span>
+                      </td>
+                      <td th:text="${#dates.format(share.sharedAt, 'dd-MM-yyyy HH:mm')}"></td>
+                      <td>
+                          <button type="button" class="btn btn-danger btn-sm"
+                                  th:onclick="'removeShare(' + ${share.id} + ')'">
+                              <i class="bi bi-trash"></i>
+                          </button>
+                      </td>
+                  </tr>
+                  </tbody>
+              </table>
             <div class="alert alert-info" th:if="${document.shares.empty}">
               <i class="bi bi-info-circle me-2"></i>
               Nessuna condivisione attiva per questo documento.
@@ -76,33 +74,99 @@
           </div>
 
           <h5>Nuova Condivisione</h5>
-          <form th:action="@{/api/documents/{id}/share(id=${document.id})}"
-                method="post" class="needs-validation" novalidate>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label for="username" class="form-label">Username *</label>
-                <input type="text" class="form-control" id="username"
-                       name="username" required>
-              </div>
-              <div class="col-md-6">
-                <label for="permission" class="form-label">Permesso *</label>
-                <select class="form-select" id="permission"
-                        name="permission" required>
-                  <option value="READ">Lettura</option>
-                  <option value="WRITE">Scrittura</option>
-                </select>
-              </div>
-            </div>
-            <div class="d-grid mt-4">
-              <button type="submit" class="btn btn-primary">
-                <i class="bi bi-share me-2"></i>Condividi
-              </button>
-            </div>
-          </form>
+            <form class="needs-validation" novalidate onsubmit="shareDocument(event)">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="username" class="form-label">Username *</label>
+                        <input type="text" class="form-control" id="username"
+                               name="username" required>
+                        <div class="invalid-feedback">
+                            Username è obbligatorio
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="permission" class="form-label">Permesso *</label>
+                        <select class="form-select" id="permission"
+                                name="permission" required>
+                            <option value="READ">Lettura</option>
+                            <option value="WRITE">Scrittura</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-share me-2"></i>Condividi
+                    </button>
+                </div>
+            </form>
+
         </div>
       </div>
     </div>
   </div>
-</div>
+
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script th:inline="javascript">
+    // Ottieni il document ID dalla pagina
+    const documentId = [[${document.id}]];
+
+    async function shareDocument(event) {
+        event.preventDefault();
+        const username = document.getElementById('username').value.trim();
+        const permission = document.getElementById('permission').value;
+
+        if (!username) {
+            alert('Per favore, inserisci un username');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/documents/${documentId}/share`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `username=${encodeURIComponent(username)}&permission=${encodeURIComponent(permission)}`
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert('Documento condiviso con successo');
+                location.reload();
+            } else {
+                throw new Error(data.error || 'Errore durante la condivisione');
+            }
+        } catch (error) {
+            console.error('Errore:', error);
+            alert(error.message);
+        }
+    }
+
+    async function removeShare(shareId) {
+        if (!confirm('Sei sicuro di voler rimuovere questa condivisione?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/shares/${shareId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                location.reload();
+            } else {
+                const data = await response.text();
+                throw new Error(data || 'Errore durante la rimozione della condivisione');
+            }
+        } catch (error) {
+            console.error('Errore:', error);
+            alert(error.message);
+        }
+    }
+</script>
+
 </body>
 </html>

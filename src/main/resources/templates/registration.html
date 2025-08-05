@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header('Registrazione')}">
+</head>
+<body class="d-flex flex-column min-vh-100">
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h4 class="mb-0">Registrazione</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div th:if="${successMessage}" class="alert alert-success" role="alert">
+                        <i class="bi bi-check-circle me-2"></i>
+                        <span th:text="${successMessage}"></span>
+                    </div>
+
+                    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+                        <i class="bi bi-exclamation-circle me-2"></i>
+                        <span th:text="${errorMessage}"></span>
+                    </div>
+
+                    <form th:action="@{/user/registration}" method="post"
+                          th:object="${user}" class="needs-validation" novalidate>
+
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-person"></i>
+                                </span>
+                                <input type="text" class="form-control" id="username"
+                                       th:field="*{username}" required
+                                       th:classappend="${#fields.hasErrors('username')} ? 'is-invalid' : ''">
+                                <div class="invalid-feedback"
+                                     th:if="${#fields.hasErrors('username')}"
+                                     th:errors="*{username}">
+                                    Username non valido
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-key"></i>
+                                </span>
+                                <input type="password" class="form-control" id="password"
+                                       th:field="*{password}" required
+                                       th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''">
+                                <div class="invalid-feedback"
+                                     th:if="${#fields.hasErrors('password')}"
+                                     th:errors="*{password}">
+                                    Password non valida
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="confirmPassword" class="form-label">Conferma Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-key-fill"></i>
+                                </span>
+                                <input type="password" class="form-control" id="confirmPassword"
+                                       th:field="*{confirmPassword}" required
+                                       th:classappend="${#fields.hasErrors('confirmPassword')} ? 'is-invalid' : ''">
+                                <div class="invalid-feedback"
+                                     th:if="${#fields.hasErrors('confirmPassword')}"
+                                     th:errors="*{confirmPassword}">
+                                    Le password non coincidono
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-person-plus me-2"></i>Registrati
+                            </button>
+                            <a href="/login" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Torna al login
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Validazione form lato client
+        const form = document.querySelector('form');
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirmPassword');
+
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            if (password.value !== confirmPassword.value) {
+                confirmPassword.setCustomValidity('Le password non coincidono');
+                event.preventDefault();
+            } else {
+                confirmPassword.setCustomValidity('');
+            }
+
+            form.classList.add('was-validated');
+        });
+
+        // Reset validazione quando l'utente modifica il campo
+        password.addEventListener('input', () => confirmPassword.setCustomValidity(''));
+        confirmPassword.addEventListener('input', () => confirmPassword.setCustomValidity(''));
+    });
+</script>
+
+</body>
+</html>

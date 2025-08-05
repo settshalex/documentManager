@@ -33,6 +33,10 @@ public class DocumentService {
         this.documentRepository = documentRepository;
     }
 
+    public Document save(Document document) {
+        return documentRepository.save(document);
+    }
+
     @Async("documentProcessingExecutor")
     @Transactional
     public CompletableFuture<Document> processFileAsync(
