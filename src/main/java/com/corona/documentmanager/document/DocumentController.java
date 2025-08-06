@@ -22,6 +22,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.SAXException;
+import com.corona.documentmanager.exception.PermissionDeniedException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,13 +47,21 @@ public class DocumentController {
     }
 
     @GetMapping("/documents/download/{id}")
-    public ResponseEntity<ByteArrayResource> downloadDocument(@PathVariable Long id) {
+    public ResponseEntity<ByteArrayResource> downloadDocument(Authentication authentication, @PathVariable Long id) {
         try {
+            LoggedUser customUser = (LoggedUser)authentication.getPrincipal();
             Document document = documentService.findDocumentById(id);
-            ByteArrayResource resource = new ByteArrayResource(document.getData());
-            return createDocumentResponse(document, resource);
+            if (CheckReadPermission(document, customUser)){
+                ByteArrayResource resource = new ByteArrayResource(document.getData());
+                return createDocumentResponse(document, resource);
+            } else {
+                throw new PermissionDeniedException("User does not have permission to download this document");
+            }
+
         } catch (DocumentNotFoundException e) {
             return ResponseEntity.notFound().build();
+        } catch (PermissionDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }
 
@@ -179,10 +188,19 @@ public class DocumentController {
     }
 
     @PostMapping("/api/document/{id}/tags")
-    public ResponseEntity<?> addTag(@PathVariable Long id, @RequestBody DocumentTagDTO tagDTO) {
+    public ResponseEntity<?> addTag(@PathVariable Long id,
+                                    @RequestBody DocumentTagDTO tagDTO,
+                                    Authentication authentication) {
         Document document = documentService.findDocumentById(id);
         if (document == null) {
             return ResponseEntity.notFound().build();
+        }
+
+        LoggedUser user = (LoggedUser) authentication.getPrincipal();
+
+        if (!CheckWritePermission(document, user)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Non hai i permessi per modificare i tag di questo documento");
         }
 
         document.addTag(tagDTO.getTag());
@@ -191,13 +209,19 @@ public class DocumentController {
         return ResponseEntity.ok().build();
     }
 
+
     @DeleteMapping("/api/document/{id}/tags/{tag}")
-    public ResponseEntity<?> removeTag(@PathVariable Long id, @PathVariable String tag) {
+    public ResponseEntity<?> removeTag(@PathVariable Long id, @PathVariable String tag, Authentication authentication) {
+        LoggedUser user = (LoggedUser) authentication.getPrincipal();
         Document document = documentService.findDocumentById(id);
         if (document == null) {
             return ResponseEntity.notFound().build();
         }
 
+        if (!CheckWritePermission(document, user)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Non hai i permessi per cancellare i tag di questo documento");
+        }
         document.removeTag(tag);
         documentService.save(document);
 
@@ -205,16 +229,34 @@ public class DocumentController {
     }
 
     @GetMapping("/api/document/{id}/tags")
-    public ResponseEntity<Set<String>> getTags(@PathVariable Long id) {
+    public ResponseEntity<Set<String>> getTags(@PathVariable Long id, Authentication authentication) {
+        LoggedUser user = (LoggedUser) authentication.getPrincipal();
         Document document = documentService.findDocumentById(id);
         if (document == null) {
             return ResponseEntity.notFound().build();
         }
+        if (CheckReadPermission(document, user)) {
+            return ResponseEntity.ok(
+                    document.getTags() != null ? document.getTags() : new HashSet<>()
+            );
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
-        return ResponseEntity.ok(
-                document.getTags() != null ? document.getTags() : new HashSet<>()
-        );
     }
 
+    private Boolean CheckWritePermission(Document document, LoggedUser user){
+        return document.getCreatedBy().getId().equals(user.getUserId()) ||
+                document.getShares().stream()
+                        .anyMatch(share -> share.getSharedWithUser().getId().equals(user.getUserId())
+                                && share.getPermission().equals("WRITE"));
+    }
+    
+    private Boolean CheckReadPermission(Document document, LoggedUser user){
+        return document.getCreatedBy().getId().equals(user.getUserId()) ||
+                document.getShares().stream()
+                        .anyMatch(share -> share.getSharedWithUser().getId().equals(user.getUserId())
+                                && (share.getPermission().equals("READ") || share.getPermission().equals("WRITE")));
+    }
 
 }

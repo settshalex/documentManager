@@ -41,7 +41,7 @@
                                 <div class="d-flex flex-wrap gap-1 align-items-center">
         <span th:each="tag : ${doc.tags}" class="badge bg-info position-relative">
             <span th:text="${tag}"></span>
-            <button type="button" class="btn-close btn-close-white position-absolute top-0 start-100 translate-middle"
+            <button type="button" class="btn-close btn-close-red position-absolute top-0 start-100 translate-middle"
                     th:attr="data-document-id=${doc.id},data-tag=${tag}"
                     onclick="removeTagFromButton(this)"
                     style="font-size: 0.5rem;">
@@ -103,6 +103,7 @@
                             <th>Tipo</th>
                             <th>Data Caricamento</th>
                             <th>Descrizione</th>
+                            <th>Tags</th>
                             <th>Azioni</th>
                         </tr>
                         </thead>
@@ -113,6 +114,32 @@
                             <td><span class="badge bg-secondary" th:text="${doc.mimeType}"></span></td>
                             <td th:text="${doc.formattedLastUpdated}"></td>
                             <td th:text="${doc.description}"></td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-1 align-items-center">
+        <span th:each="tag : ${doc.tags}" class="badge bg-info position-relative">
+            <span th:text="${tag}"></span>
+            <!-- Mostra il pulsante di rimozione solo se l'utente ha permesso di scrittura -->
+            <button th:if="${doc.shares.?[sharedWithUser.id == #authentication.principal.user.id
+                           && permission == 'WRITE'].size() > 0}"
+                    type="button"
+                    class="btn-close btn-close-white position-absolute top-0 start-100 translate-middle"
+                    th:attr="data-document-id=${doc.id},data-tag=${tag}"
+                    onclick="removeTagFromButton(this)"
+                    style="font-size: 0.5rem;">
+            </button>
+        </span>
+                                    <!-- Mostra il pulsante di aggiunta tag solo se l'utente ha permesso di scrittura -->
+                                    <button th:if="${doc.shares.?[sharedWithUser.id == #authentication.principal.user.id
+                        && permission == 'WRITE'].size() > 0}"
+                                            class="btn btn-sm btn-outline-primary"
+                                            th:attr="data-document-id=${doc.id}"
+                                            onclick="showAddTagModal(this)"
+                                            title="Aggiungi tag">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                </div>
+                            </td>
+
                             <td>
                                 <a th:href="@{/documents/download/{id}(id=${doc.id})}"
                                    class="btn btn-sm btn-primary"
@@ -187,9 +214,6 @@
         try {
             const response = await fetch(`/api/document/${documentId}/tags/${encodeURIComponent(tag)}`, {
                 method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
-                }
             });
 
             if (response.ok) {
