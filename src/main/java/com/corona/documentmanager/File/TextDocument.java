@@ -35,7 +35,6 @@ public class TextDocument extends CommonFile implements File {
         String text = new String(file.getBytes(), StandardCharsets.UTF_8);
         document.setText(text);
 
-        // Estrai e aggiungi le parole chiave come tag
         Set<String> keywords = extractKeywords(text);
         keywords.forEach(document::addTag);
         System.out.println("keywords " + keywords);
@@ -45,10 +44,8 @@ public class TextDocument extends CommonFile implements File {
 
     private Set<String> extractKeywords(String text) {
         try {
-            // Ottieni le parole tokenizzate
             String[] tokens = tokenizer.tokenize(text);
 
-            // Conta la frequenza delle parole
             Map<String, Integer> wordFrequency = new HashMap<>();
             for (String token : tokens) {
                 String word = token.toLowerCase();
@@ -57,7 +54,6 @@ public class TextDocument extends CommonFile implements File {
                 }
             }
 
-            // Ordina per frequenza e prendi le prime MAX_KEYWORDS parole
             return wordFrequency.entrySet().stream()
                     .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
                     .limit(MAX_KEYWORDS)
