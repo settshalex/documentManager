@@ -22,12 +22,8 @@ public class TextDocument extends CommonFile implements File {
     private StopWords stopWords;
 
     public TextDocument() {
-        try {
-            tokenizer = new TokenizerModel();
-            stopWords = new StopWords();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        tokenizer = new TokenizerModel();
+        stopWords = new StopWords();
     }
 
     public Document createNewDocument(MultipartFile file, LoggedUser customUser,
@@ -42,6 +38,7 @@ public class TextDocument extends CommonFile implements File {
         // Estrai e aggiungi le parole chiave come tag
         Set<String> keywords = extractKeywords(text);
         keywords.forEach(document::addTag);
+        System.out.println("keywords " + keywords);
 
         return document;
     }
@@ -75,7 +72,7 @@ public class TextDocument extends CommonFile implements File {
 
     private boolean isValidKeyword(String word) {
         return word.length() >= MIN_WORD_LENGTH &&
-                word.matches("\\p{L}+") &&  // Solo caratteri alfabetici
+                word.matches("\\p{L}+") &&
                 !stopWords.isStopWord(word);
     }
 

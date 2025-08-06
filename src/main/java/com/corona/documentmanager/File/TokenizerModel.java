@@ -11,27 +11,13 @@ import java.util.stream.Collectors;
 
 public class TokenizerModel {
     private final Pattern wordPattern;
-    private final Set<String> vocabulary;
 
-    public TokenizerModel() throws IOException {
-        this.wordPattern = Pattern.compile("\\b\\w+\\b");
-        this.vocabulary = loadVocabulary();
+    public TokenizerModel() {
+        this.wordPattern = Pattern.compile("\\b[\\p{L}]+\\b");
     }
 
-    public TokenizerModel(InputStream modelIn) throws IOException {
+    public TokenizerModel(InputStream modelIn) {
         this();
-    }
-
-    private Set<String> loadVocabulary() throws IOException {
-        Set<String> vocab = new HashSet<>();
-        try (InputStream is = getClass().getResourceAsStream("/vocabulary/italian_words.txt");
-             BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                vocab.add(line.trim().toLowerCase());
-            }
-        }
-        return vocab;
     }
 
     public String[] tokenize(String text) {
@@ -53,8 +39,9 @@ public class TokenizerModel {
     }
 
     private boolean isValidToken(String token) {
-        return token.length() > 1 && vocabulary.contains(token.toLowerCase());
+        return token.length() > 2 && token.matches("\\p{L}+");
     }
+
 
     // Metodi di utilità per l'analisi del testo
     public List<String> extractKeyPhrases(String text, int maxPhrases) {

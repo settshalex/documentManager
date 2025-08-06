@@ -25,7 +25,7 @@ public class ImageDocument extends CommonFile implements File{
         String imageMetadata = extractImageMetadata(file);
         String enhancedDescription = description + "\n\nMetadati Immagine:\n" + imageMetadata;
 
-        return super.prepareNewDocument(file, customUser, title, description, mime_type, docType);
+        return super.prepareNewDocument(file, customUser, title, enhancedDescription, mime_type, docType);
     }
 
     private String extractImageMetadata(MultipartFile file) throws IOException {
