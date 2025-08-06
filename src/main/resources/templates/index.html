@@ -41,7 +41,7 @@
                                 <div class="d-flex flex-wrap gap-1 align-items-center">
         <span th:each="tag : ${doc.tags}" class="badge bg-info position-relative">
             <span th:text="${tag}"></span>
-            <button type="button" class="btn-close btn-close-red position-absolute top-0 start-100 translate-middle"
+            <button type="button" class="btn-close btn-close-black position-absolute top-0 start-100 translate-middle"
                     th:attr="data-document-id=${doc.id},data-tag=${tag}"
                     onclick="removeTagFromButton(this)"
                     style="font-size: 0.5rem;">
@@ -118,19 +118,18 @@
                                 <div class="d-flex flex-wrap gap-1 align-items-center">
         <span th:each="tag : ${doc.tags}" class="badge bg-info position-relative">
             <span th:text="${tag}"></span>
-            <!-- Mostra il pulsante di rimozione solo se l'utente ha permesso di scrittura -->
             <button th:if="${doc.shares.?[sharedWithUser.id == #authentication.principal.user.id
-                           && permission == 'WRITE'].size() > 0}"
+                           and permission.name() == 'WRITE'].size() > 0}"
                     type="button"
-                    class="btn-close btn-close-white position-absolute top-0 start-100 translate-middle"
+                    class="btn-close btn-close-black position-absolute top-0 start-100 translate-middle"
                     th:attr="data-document-id=${doc.id},data-tag=${tag}"
                     onclick="removeTagFromButton(this)"
                     style="font-size: 0.5rem;">
             </button>
         </span>
-                                    <!-- Mostra il pulsante di aggiunta tag solo se l'utente ha permesso di scrittura -->
+                                    <!-- Bottone aggiungi tag -->
                                     <button th:if="${doc.shares.?[sharedWithUser.id == #authentication.principal.user.id
-                        && permission == 'WRITE'].size() > 0}"
+                        and permission.name() == 'WRITE'].size() > 0}"
                                             class="btn btn-sm btn-outline-primary"
                                             th:attr="data-document-id=${doc.id}"
                                             onclick="showAddTagModal(this)"
@@ -139,6 +138,7 @@
                                     </button>
                                 </div>
                             </td>
+
 
                             <td>
                                 <a th:href="@{/documents/download/{id}(id=${doc.id})}"
@@ -183,11 +183,11 @@
 <script th:inline="javascript">
     let tagModal;
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         tagModal = new bootstrap.Modal(document.getElementById('addTagModal'));
 
         // Gestione dell'input con tasto Invio
-        document.getElementById('tagInput').addEventListener('keypress', function(e) {
+        document.getElementById('tagInput').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 addTag();
@@ -243,7 +243,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ tag: tag })
+                body: JSON.stringify({tag: tag})
             });
 
             if (response.ok) {

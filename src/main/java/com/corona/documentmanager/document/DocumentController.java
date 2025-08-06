@@ -1,4 +1,5 @@
 package com.corona.documentmanager.document;
+import com.corona.documentmanager.DocumentShare.DocumentShare;
 import com.corona.documentmanager.dto.DocumentTagDTO;
 import com.corona.documentmanager.exception.DocumentNotFoundException;
 import com.corona.documentmanager.service.DocumentService;
@@ -246,17 +247,23 @@ public class DocumentController {
     }
 
     private Boolean CheckWritePermission(Document document, LoggedUser user){
+       System.out.println("CheckWritePermission "+document.getShares());
+       for (DocumentShare share : document.getShares()) {
+           System.out.println("CheckWritePermission1 "+share.getPermission());
+           System.out.println("CheckWritePermission2 "+share.getSharedWithUser().getId().equals(user.getUserId()));
+           System.out.println("CheckWritePermission2 "+share.getPermission().toString().equals("WRITE"));
+       }
         return document.getCreatedBy().getId().equals(user.getUserId()) ||
                 document.getShares().stream()
                         .anyMatch(share -> share.getSharedWithUser().getId().equals(user.getUserId())
-                                && share.getPermission().equals("WRITE"));
+                                && share.getPermission().toString().equals("WRITE"));
     }
     
     private Boolean CheckReadPermission(Document document, LoggedUser user){
         return document.getCreatedBy().getId().equals(user.getUserId()) ||
                 document.getShares().stream()
                         .anyMatch(share -> share.getSharedWithUser().getId().equals(user.getUserId())
-                                && (share.getPermission().equals("READ") || share.getPermission().equals("WRITE")));
+                                && (share.getPermission().toString().equals("READ") || share.getPermission().toString().equals("WRITE")));
     }
 
 }
