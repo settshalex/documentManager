@@ -1,14 +1,11 @@
 package com.corona.documentmanager.File;
 
-import ch.qos.logback.core.subst.Tokenizer;
 import com.corona.documentmanager.document.Document;
 import com.corona.documentmanager.documentType.DocumentType;
 import com.corona.documentmanager.user.LoggedUser;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;

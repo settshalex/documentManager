@@ -1,14 +1,10 @@
 package com.corona.documentmanager.File;
 
 import com.corona.documentmanager.document.Document;
-import com.corona.documentmanager.document.DocumentRepository;
 import com.corona.documentmanager.documentType.DocumentType;
-import com.corona.documentmanager.documentType.DocumentTypeRepository;
 import com.corona.documentmanager.user.LoggedUser;
 import com.google.common.hash.Hashing;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;

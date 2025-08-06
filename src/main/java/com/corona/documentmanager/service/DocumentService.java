@@ -4,7 +4,6 @@ import com.corona.documentmanager.File.FileFactory;
 import com.corona.documentmanager.document.Document;
 import com.corona.documentmanager.document.DocumentRepository;
 import com.corona.documentmanager.File.File;
-import com.corona.documentmanager.File.AbstractFactory;
 import com.corona.documentmanager.documentType.DocumentType;
 import com.corona.documentmanager.exception.DocumentNotFoundException;
 import com.corona.documentmanager.user.LoggedUser;
@@ -17,7 +16,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;

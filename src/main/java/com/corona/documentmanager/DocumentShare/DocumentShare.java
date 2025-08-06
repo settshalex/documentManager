@@ -4,10 +4,8 @@ import com.corona.documentmanager.document.Document;
 import com.corona.documentmanager.user.User;
 import lombok.Getter;
 import lombok.Setter;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-
 import java.time.Instant;
 
 @Entity

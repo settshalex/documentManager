@@ -1,13 +1,8 @@
 package com.corona.documentmanager.user;
 
 import com.corona.documentmanager.document.Document;
-import com.corona.documentmanager.documentComments.DocumentComment;
 import lombok.*;
-
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
-
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -31,9 +26,6 @@ public class User {
 
     @Column(name = "role", length = 30)
     private String role;
-
-    @OneToMany(mappedBy = "createdBy")
-    private Set<DocumentComment> documentComments = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "createdBy")
     private Set<Document> documents = new LinkedHashSet<>();

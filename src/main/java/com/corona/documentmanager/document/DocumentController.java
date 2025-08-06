@@ -9,27 +9,22 @@ import com.corona.documentmanager.File.FileParser;
 import com.corona.documentmanager.documentType.DocumentType;
 import com.corona.documentmanager.documentType.DocumentTypeRepository;
 import com.corona.documentmanager.user.LoggedUser;
-import jakarta.annotation.Resource;
 import org.apache.tika.exception.TikaException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.SAXException;
 import com.corona.documentmanager.exception.PermissionDeniedException;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 @RestController
 public class DocumentController {

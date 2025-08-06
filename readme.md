@@ -78,46 +78,6 @@ create unique index document_type_id_uindex
 
 create unique index document_type_type_uindex
     on public.document_type (type);
-
-create table public.document_comments
-(
-    id         bigserial
-        constraint document_comments_pk
-            primary key,
-    created_by bigint not null
-        constraint document_comments_users_id_fk
-            references public.users
-            on delete set null,
-    comments   text   not null
-);
-
-alter table public.document_comments
-    owner to postgres;
-
-create unique index document_comments_id_uindex
-    on public.document_comments (id);
-
-create table public.document_versioning
-(
-    id          bigserial
-        constraint document_versioning_pk
-            primary key,
-    created_by  bigint not null
-        constraint document_versioning_users_id_fk
-            references public.users
-            on delete set null,
-    patch       text   not null,
-    document_id bigint not null
-        constraint document_versioning_documents_id_fk
-            references public.documents
-            on delete cascade
-);
-
-alter table public.document_versioning
-    owner to postgres;
-
-create unique index document_versioning_id_uindex
-    on public.document_versioning (id);
     
 CREATE TABLE document_shares (
     id BIGSERIAL PRIMARY KEY,

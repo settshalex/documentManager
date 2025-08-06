@@ -3,11 +3,8 @@ package com.corona.documentmanager.DocumentTags;
 import com.corona.documentmanager.document.Document;
 import lombok.Getter;
 import lombok.Setter;
-
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
 
-import java.time.Instant;
 
 @Entity
 @Table(name = "document_tags")

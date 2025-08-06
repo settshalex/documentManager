@@ -6,7 +6,6 @@ import com.corona.documentmanager.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import com.corona.documentmanager.user.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -53,7 +52,6 @@ public class RegistrationController {
                     .username(userDto.getUsername())
                     .password(passwordEncoder.encode(userDto.getPassword()))
                     .role("USER")
-                    .documentComments(new LinkedHashSet<>())  // Inizializza le collezioni
                     .documents(new LinkedHashSet<>())         // Inizializza le collezioni
                     .build();
 

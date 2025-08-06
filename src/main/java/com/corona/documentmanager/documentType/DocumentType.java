@@ -1,11 +1,8 @@
 package com.corona.documentmanager.documentType;
 
 import com.corona.documentmanager.document.Document;
-import org.hibernate.annotations.Type;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
-
 import java.util.LinkedHashSet;
 import java.util.Set;
 
