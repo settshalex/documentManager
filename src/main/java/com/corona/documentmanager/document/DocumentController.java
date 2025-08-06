@@ -245,6 +245,27 @@ public class DocumentController {
         }
 
     }
+    @PutMapping("/api/document/{id}/description")
+    public ResponseEntity<?> updateDescription(@PathVariable Long id,
+                                               @RequestBody String description,
+                                               Authentication authentication) {
+        LoggedUser user = (LoggedUser) authentication.getPrincipal();
+        Document document = documentService.findDocumentById(id);
+
+        if (document == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (!CheckWritePermission(document, user)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Non hai i permessi per modificare la descrizione di questo documento");
+        }
+
+        document.setDescription(description);
+        documentService.save(document);
+
+        return ResponseEntity.ok().build();
+    }
 
     private Boolean CheckWritePermission(Document document, LoggedUser user){
        System.out.println("CheckWritePermission "+document.getShares());

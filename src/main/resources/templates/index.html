@@ -36,7 +36,22 @@
                             <td th:text="${doc.title}"></td>
                             <td><span class="badge bg-secondary" th:text="${doc.mimeType}"></span></td>
                             <td th:text="${#temporals.format(doc.lastUpdated, 'dd-MM-yyyy HH:mm')}"></td>
-                            <td th:text="${doc.description}"></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span th:text="${doc.description}" class="me-2"></span>
+                                    <button th:if="${doc.createdBy.id == #authentication.principal.user.id or
+                        doc.shares.?[sharedWithUser.id == #authentication.principal.user.id
+                        and permission.toString() == 'WRITE'].size() > 0}"
+                                            class="btn btn-sm btn-outline-primary"
+                                            th:attr="data-document-id=${doc.id},
+                        data-description=${doc.description}"
+                                            onclick="showEditDescriptionModal(this)"
+                                            title="Modifica descrizione">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                </div>
+                            </td>
+
                             <td>
                                 <div class="d-flex flex-wrap gap-1 align-items-center">
         <span th:each="tag : ${doc.tags}" class="badge bg-info position-relative">
@@ -113,7 +128,22 @@
                             <td th:text="${doc.createdBy.username}"></td>
                             <td><span class="badge bg-secondary" th:text="${doc.mimeType}"></span></td>
                             <td th:text="${doc.formattedLastUpdated}"></td>
-                            <td th:text="${doc.description}"></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span th:text="${doc.description}" class="me-2"></span>
+                                    <button th:if="${doc.createdBy.id == #authentication.principal.user.id or
+                        doc.shares.?[sharedWithUser.id == #authentication.principal.user.id
+                        and permission.toString() == 'WRITE'].size() > 0}"
+                                            class="btn btn-sm btn-outline-primary"
+                                            th:attr="data-document-id=${doc.id},
+                        data-description=${doc.description}"
+                                            onclick="showEditDescriptionModal(this)"
+                                            title="Modifica descrizione">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                </div>
+                            </td>
+
                             <td>
                                 <div class="d-flex flex-wrap gap-1 align-items-center">
         <span th:each="tag : ${doc.tags}" class="badge bg-info position-relative">
@@ -178,16 +208,37 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="editDescriptionModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modifica Descrizione</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="descriptionInput" class="form-label">Descrizione</label>
+                        <textarea class="form-control" id="descriptionInput" rows="3"></textarea>
+                    </div>
+                    <input type="hidden" id="documentIdForDescription">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                    <button type="button" class="btn btn-primary" onclick="updateDescription()">Salva</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </main>
 <script th:inline="javascript">
     let tagModal;
 
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         tagModal = new bootstrap.Modal(document.getElementById('addTagModal'));
 
         // Gestione dell'input con tasto Invio
-        document.getElementById('tagInput').addEventListener('keypress', function (e) {
+        document.getElementById('tagInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 addTag();
@@ -243,7 +294,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({tag: tag})
+                body: JSON.stringify({ tag: tag })
             });
 
             if (response.ok) {
@@ -254,6 +305,44 @@
         } catch (error) {
             console.error('Errore:', error);
             alert('Si è verificato un errore durante l\'aggiunta del tag');
+        }
+    }
+    let descriptionModal;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        descriptionModal = new bootstrap.Modal(document.getElementById('editDescriptionModal'));
+    });
+
+    function showEditDescriptionModal(button) {
+        const documentId = button.getAttribute('data-document-id');
+        const description = button.getAttribute('data-description') || '';
+
+        document.getElementById('documentIdForDescription').value = documentId;
+        document.getElementById('descriptionInput').value = description;
+        descriptionModal.show();
+    }
+
+    async function updateDescription() {
+        const documentId = document.getElementById('documentIdForDescription').value;
+        const description = document.getElementById('descriptionInput').value;
+
+        try {
+            const response = await fetch(`/api/document/${documentId}/description`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(description)
+            });
+
+            if (response.ok) {
+                location.reload();
+            } else {
+                throw new Error('Errore durante l\'aggiornamento della descrizione');
+            }
+        } catch (error) {
+            console.error('Errore:', error);
+            alert('Si è verificato un errore durante l\'aggiornamento della descrizione');
         }
     }
 
