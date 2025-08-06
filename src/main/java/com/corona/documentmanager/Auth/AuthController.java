@@ -42,26 +42,20 @@ public class AuthController
         return "redirect:/login?logout";
     }
 
-    @GetMapping("/user/registration")
-    public String showRegistrationForm(Model model) {
-        User userDto = new User();
-        model.addAttribute("user", userDto);
-        return "registration";
-    }
-
     @GetMapping(value = { "/home", "/" })
     public String showHomeForm(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        System.out.println("=====> username: " + username);
         User currentUser = userService.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Utente non trovato"));
-
-        System.out.println("=====> users: " + currentUser.getUsername());
         List<Document> userDocuments = documentService.findDocumentsByUser(currentUser);
 
-       model.addAttribute("documents", userDocuments);
+        List<Document> sharedDocuments = documentService.findDocumentsSharedWithUser(currentUser);
+        model.addAttribute("sharedDocuments", sharedDocuments);
+
+        model.addAttribute("documents", userDocuments);
         model.addAttribute("user", currentUser);
+        System.out.println("=====> users: " + currentUser.getUsername());
 
         return "index";
     }

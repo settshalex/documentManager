@@ -35,7 +35,7 @@
                         <tr th:each="doc : ${documents}">
                             <td th:text="${doc.title}"></td>
                             <td><span class="badge bg-secondary" th:text="${doc.mimeType}"></span></td>
-                            <td th:text="${#dates.format(doc.lastUpdated, 'dd-MM-yyyy HH:mm')}"></td>
+                            <td th:text="${#temporals.format(doc.lastUpdated, 'dd-MM-yyyy HH:mm')}"></td>
                             <td th:text="${doc.description}"></td>
                             <td>
                                 <div class="d-flex flex-wrap gap-1 align-items-center">

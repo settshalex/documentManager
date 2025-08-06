@@ -1,9 +1,11 @@
 package com.corona.documentmanager.documentComments;
 
 import com.corona.documentmanager.user.User;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "document_comments")
@@ -19,7 +21,7 @@ public class DocumentComment {
 
     @Lob
     @Column(name = "comments", nullable = false)
-    @Type(type = "org.hibernate.type.TextType")
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     private String comments;
 
     public Long getId() {

@@ -43,7 +43,6 @@ create table public.documents
         constraint documents_pk
             primary key,
     title         text        not null,
-    unique_id     varchar(24) not null,
     created_by    bigint      not null
         constraint documents_users_id_fk
             references public.users

@@ -1,8 +1,12 @@
 package com.corona.documentmanager.Auth;
 
 import com.corona.documentmanager.dto.UserRegistrationDTO;
+import com.corona.documentmanager.exception.UserAlreadyExistsException;
 import com.corona.documentmanager.user.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import com.corona.documentmanager.user.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,6 +15,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.LinkedHashSet;
 
 @Controller
 @RequestMapping("/user")
@@ -42,13 +48,16 @@ public class RegistrationController {
         }
 
         try {
-            User user = User.builder()
+            // Modifica qui - usa il builder della tua classe User
+            User newUser = User.builder()
                     .username(userDto.getUsername())
                     .password(passwordEncoder.encode(userDto.getPassword()))
                     .role("USER")
+                    .documentComments(new LinkedHashSet<>())  // Inizializza le collezioni
+                    .documents(new LinkedHashSet<>())         // Inizializza le collezioni
                     .build();
 
-            userService.registerNewUser(user);
+            userService.createUser(newUser);
 
             model.addAttribute("successMessage",
                     "Registrazione completata con successo! Ora puoi effettuare il login.");

@@ -10,6 +10,9 @@ import com.corona.documentmanager.exception.DocumentNotFoundException;
 import com.corona.documentmanager.user.LoggedUser;
 import com.corona.documentmanager.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.TransientDataAccessException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +42,10 @@ public class DocumentService {
 
     @Async("documentProcessingExecutor")
     @Transactional
+    @Retryable(
+            value = {TransientDataAccessException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 200))
     public CompletableFuture<Document> processFileAsync(
             MultipartFile file,
             String title,
@@ -58,7 +65,9 @@ public class DocumentService {
                     docType
             );
             document.setLastUpdated(Instant.now());
+            System.out.println("Documento salvataggio in corso " + document.getFilename());
             Document savedDocument = documentRepository.save(document);
+            System.out.println("Documento salvato con successo");
             return CompletableFuture.completedFuture(savedDocument);
 
         } catch (Exception e) {
@@ -71,5 +80,9 @@ public class DocumentService {
     }
     public Document findDocumentById(Long id){
         return documentRepository.findById(id).orElseThrow(()->new DocumentNotFoundException("Documento non trovato"));
+    }
+
+    public List<Document> findDocumentsSharedWithUser(User user) {
+        return documentRepository.findSharedWithUser(user);
     }
 }

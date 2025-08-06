@@ -39,7 +39,7 @@ public class UserService implements UserDetailsService {
         return new LoggedUser(user.orElse(null));
     }
 
-    public void createUser(UserDetails user) {
-        userRepository.save((User) user);
+    public void createUser(User user) {
+        userRepository.save(user);
     }
 }

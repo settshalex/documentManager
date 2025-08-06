@@ -5,7 +5,9 @@ import com.corona.documentmanager.user.User;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+
 import java.time.Instant;
 
 @Entity
@@ -13,13 +15,13 @@ import java.time.Instant;
 @Getter
 @Setter
 public class DocumentShare {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "document_id", nullable = false)
+    @JoinColumn(name = "document_id")
+    @NotNull
     private Document document;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -39,5 +41,18 @@ public class DocumentShare {
 
     public enum SharePermission {
         READ, WRITE
+    }
+
+    // Costruttore di default
+    public DocumentShare() {
+    }
+
+    // Costruttore con parametri
+    public DocumentShare(Document document, User sharedWithUser, User sharedByUser, SharePermission permission) {
+        this.document = document;
+        this.sharedWithUser = sharedWithUser;
+        this.sharedByUser = sharedByUser;
+        this.permission = permission;
+        this.sharedAt = Instant.now();
     }
 }

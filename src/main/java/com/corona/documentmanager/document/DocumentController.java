@@ -1,5 +1,6 @@
 package com.corona.documentmanager.document;
 import com.corona.documentmanager.dto.DocumentTagDTO;
+import com.corona.documentmanager.exception.DocumentNotFoundException;
 import com.corona.documentmanager.service.DocumentService;
 import com.corona.documentmanager.File.File;
 import com.corona.documentmanager.File.FileFactory;
@@ -7,9 +8,14 @@ import com.corona.documentmanager.File.FileParser;
 import com.corona.documentmanager.documentType.DocumentType;
 import com.corona.documentmanager.documentType.DocumentTypeRepository;
 import com.corona.documentmanager.user.LoggedUser;
+import jakarta.annotation.Resource;
 import org.apache.tika.exception.TikaException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
@@ -20,7 +26,7 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -30,6 +36,7 @@ public class DocumentController {
     private final DocumentRepository documentRepository;
     private final DocumentTypeRepository documentTypeRepository;
 
+
     @Autowired
     public DocumentController(DocumentService documentService,
                               DocumentTypeRepository documentTypeRepository, DocumentRepository documentRepository) {
@@ -38,11 +45,28 @@ public class DocumentController {
         this.documentRepository = documentRepository;
     }
 
-    @GetMapping("/api/document/{id}")
-    public String documentDetails(@PathVariable Long id) {
-
-        return "Greetings from Spring Boot!";
+    @GetMapping("/documents/download/{id}")
+    public ResponseEntity<ByteArrayResource> downloadDocument(@PathVariable Long id) {
+        try {
+            Document document = documentService.findDocumentById(id);
+            ByteArrayResource resource = new ByteArrayResource(document.getData());
+            return createDocumentResponse(document, resource);
+        } catch (DocumentNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
+
+    private ResponseEntity<ByteArrayResource> createDocumentResponse(Document document, ByteArrayResource resource) {
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        String.format("attachment; filename=\"%s\"", document.getTitle()))
+                .contentType(MediaType.parseMediaType(document.getMimeType()))
+                .contentLength(resource.contentLength())
+                .body(resource);
+    }
+
+
+
 
     @PostMapping("/api/document/")
     public ResponseEntity<Object> newDocument(Authentication authentication, @RequestPart MultipartFile file, @RequestPart String title, @RequestPart String description) {
@@ -75,68 +99,77 @@ public class DocumentController {
                 docType = Optional.of(documentType);
             }
             Document newDocument = fileManager.createNewDocument(file, customUser, title, description, mime_type, docType);
-            System.out.println("----------------");
-            System.out.println(customUser);
-            System.out.println(newDocument.getFilename());
             documentRepository.save(newDocument);
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
+            System.out.println("=====> error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error" + e.getMessage());
         }
         return ResponseEntity.ok("File uploaded successfully.");
     }
+
     @PostMapping("/api/upload/multiple")
-    public ResponseEntity<?> uploadMultipleFiles(
-            @RequestParam("files") MultipartFile[] files,
-            @RequestParam("title") String baseTitle,
-            @RequestParam("description") String description,
-            @ModelAttribute LoggedUser customUser) {
-
+    public ResponseEntity<?> uploadMultipleFiles(Authentication authentication,
+                                                 @RequestParam("files") MultipartFile[] files) {
         try {
-            // Crea una lista di CompletableFuture per ogni file
-            List<CompletableFuture<Document>> futures = new ArrayList<>();
+            LoggedUser customUser = (LoggedUser) authentication.getPrincipal();
+            List<Thread> threads = new ArrayList<>();
+            List<Document> results = Collections.synchronizedList(new ArrayList<>());
+            CountDownLatch latch = new CountDownLatch(files.length);
 
-            for (int i = 0; i < files.length; i++) {
-                MultipartFile file = files[i];
-                String title = baseTitle + "_" + (i + 1);
-                Optional<DocumentType> docType = documentTypeRepository.findByType(file.getContentType());
-                if (docType.isEmpty()) {
-                    DocumentType documentType = new DocumentType();
-                    documentType.setType(file.getContentType());
-                    documentTypeRepository.save(documentType);
-                    docType = Optional.of(documentType);
+            for (MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    Thread thread = new Thread(() -> {
+                        try {
+                            Optional<DocumentType> docType = documentTypeRepository.findByType(file.getContentType());
+                            DocumentType documentType;
+                            if (docType.isEmpty()) {
+                                documentType = new DocumentType();
+                                documentType.setType(file.getContentType());
+                                documentType = documentTypeRepository.save(documentType);
+                            } else {
+                                documentType = docType.get();
+                            }
+                            System.out.println("Documento salvataggio in corso " + file.getOriginalFilename());
+                            Document document = documentService.processFileAsync(
+                                    file,
+                                    file.getOriginalFilename(),
+                                    "",
+                                    customUser,
+                                    Optional.of(documentType)
+                            ).get();
+                            System.out.println("Documento salvataggio in corso " + document.getFilename());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        } finally {
+                            latch.countDown();
+                        }
+                    });
+
+                    threads.add(thread);
+                    thread.start();
                 }
-                CompletableFuture<Document> future = documentService.processFileAsync(
-                        file,
-                        title,
-                        description,
-                        customUser,
-                        docType
-                );
-
-                futures.add(future);
             }
 
-            // Attendi il completamento di tutte le operazioni
-            CompletableFuture<Void> allOf = CompletableFuture.allOf(
-                    futures.toArray(new CompletableFuture[0])
-            );
+            // Attendi il completamento di tutti i thread
+            boolean completed = latch.await(5L, TimeUnit.MINUTES);
+            if (!completed) {
+                return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT)
+                        .body("Timeout durante l'elaborazione dei file");
+            }
 
-            // Raccogli i risultati
-            CompletableFuture<List<Document>> allDocuments = allOf.thenApply(v ->
-                    futures.stream()
-                            .map(CompletableFuture::join)
-                            .collect(Collectors.toList())
-            );
+            return ResponseEntity.ok().build();
 
-            // Gestisci il risultato finale
-            List<Document> savedDocuments = allDocuments.join();
-            return ResponseEntity.ok(savedDocuments);
 
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error processing files: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest()
+                    .body("Errore durante l'elaborazione dei file: " + e.getMessage());
         }
     }
+
+
+
+
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleException(Exception e) {

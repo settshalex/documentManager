@@ -6,108 +6,138 @@
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <main class="container py-4">
-  <!-- Il tuo contenuto esistente qui -->
-  <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-          <h4 class="mb-0">Carica Nuovi Documenti</h4>
-          <a th:href="@{/}" class="btn btn-light btn-sm">
-            <i class="bi bi-arrow-left me-1"></i>Torna alla lista
-          </a>
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Carica Singolo Documento</h5>
+                </div>
+                <div class="card-body">
+                    <form id="singleUploadForm" onsubmit="handleSingleUpload(event)">
+                        <div class="mb-3">
+                            <label for="file" class="form-label">Seleziona file</label>
+                            <input type="file" class="form-control" id="file" required>
+                            <div class="invalid-feedback">
+                                Seleziona un file da caricare.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="singleTitle" class="form-label">Titolo</label>
+                            <input type="text" class="form-control" id="singleTitle" required>
+                            <div class="invalid-feedback">
+                                Inserisci un titolo per il documento.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="singleDescription" class="form-label">Descrizione</label>
+                            <textarea class="form-control" id="singleDescription" rows="3"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-upload me-1"></i>Carica File
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="card-body p-4">
-          <div th:if="${successMessage}" class="alert alert-success" role="alert">
-            <i class="bi bi-check-circle me-2"></i>
-            <span th:text="${successMessage}"></span>
-          </div>
 
-          <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
-            <i class="bi bi-exclamation-circle me-2"></i>
-            <span th:text="${errorMessage}"></span>
-          </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Carica Multipli Documenti</h5>
+                </div>
+                <div class="card-body">
+                    <form id="multipleUploadForm" onsubmit="handleMultipleUpload(event)">
+                        <div class="mb-3">
+                            <label for="files" class="form-label">Seleziona files</label>
+                            <input type="file" class="form-control" id="files" multiple required>
+                            <div class="invalid-feedback">
+                                Seleziona almeno un file da caricare.
+                            </div>
+                        </div>
 
-          <form th:action="@{/api/document/}" method="POST"
-                enctype="multipart/form-data" class="needs-validation" novalidate>
-            <div class="mb-3">
-              <label for="title" class="form-label">Titolo Base *</label>
-              <input type="text" class="form-control" id="title"
-                     name="title" required>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-upload me-1"></i>Carica Files
+                        </button>
+                    </form>
+                </div>
             </div>
-
-            <div class="mb-3">
-              <label for="description" class="form-label">Descrizione</label>
-              <textarea class="form-control" id="description"
-                        name="description" rows="3"></textarea>
-            </div>
-
-            <div class="mb-4">
-              <label class="form-label">File *</label>
-              <div class="drop-zone rounded border-2 border-dashed p-4 text-center"
-                   id="dropZone">
-                <input type="file" id="files" name="file"
-                       multiple class="d-none" required>
-                <i class="bi bi-cloud-upload display-4"></i>
-                <p class="mt-2">Trascina i file qui o
-                  <span class="text-primary">clicca per selezionare</span>
-                </p>
-              </div>
-              <div id="fileList" class="mt-2 small"></div>
-            </div>
-
-            <div class="d-grid">
-              <button type="submit" class="btn btn-primary">
-                <i class="bi bi-cloud-upload me-2"></i>Carica File
-              </button>
-            </div>
-          </form>
         </div>
-      </div>
     </div>
-  </div>
 </main>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
-
-<!-- Scripts specifici della pagina -->
 <script th:inline="javascript">
-  document.addEventListener('DOMContentLoaded', function() {
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('files');
-    const fileList = document.getElementById('fileList');
+    async function handleSingleUpload(event) {
+        event.preventDefault();
 
-    dropZone.addEventListener('click', () => fileInput.click());
+        const formData = new FormData();
+        formData.append('file', document.getElementById('file').files[0]);
+        formData.append('title', document.getElementById('singleTitle').value);
+        formData.append('description', document.getElementById('singleDescription').value);
 
-    dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropZone.classList.add('border-primary');
-    });
+        try {
+            const response = await fetch('/api/document/', {
+                method: 'POST',
+                body: formData,
+            });
 
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.classList.remove('border-primary');
-    });
-
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('border-primary');
-      fileInput.files = e.dataTransfer.files;
-      updateFileList();
-    });
-
-    fileInput.addEventListener('change', updateFileList);
-
-    function updateFileList() {
-      fileList.innerHTML = '';
-      Array.from(fileInput.files).forEach(file => {
-        const fileSize = (file.size / 1024).toFixed(2);
-        fileList.innerHTML += `
-                            <div class="text-muted">
-                                <i class="bi bi-file-earmark me-1"></i>
-                                ${file.name} (${fileSize} KB)
-                            </div>`;
-      });
+            if (response.ok) {
+                alert('File caricato con successo!');
+                window.location.href = '/';
+            } else {
+                throw new Error('Errore durante il caricamento');
+            }
+        } catch (error) {
+            console.error('Errore:', error);
+            alert('Si è verificato un errore durante il caricamento del file');
+        }
     }
-  });
+
+    async function handleMultipleUpload(event) {
+        event.preventDefault();
+
+        const formData = new FormData();
+        const files = document.getElementById('files').files;
+
+        for (let file of files) {
+            formData.append('files', file);
+        }
+
+        try {
+            const response = await fetch('/api/upload/multiple', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.ok) {
+                alert('Files caricati con successo!');
+                window.location.href = '/';
+            } else {
+                throw new Error('Errore durante il caricamento');
+            }
+        } catch (error) {
+            console.error('Errore:', error);
+            alert('Si è verificato un errore durante il caricamento dei files');
+        }
+    }
+
+    // Aggiungi validazione bootstrap per tutti i form
+    (function () {
+        'use strict'
+        const forms = document.querySelectorAll('.needs-validation');
+
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
 </script>
 </body>
 </html>

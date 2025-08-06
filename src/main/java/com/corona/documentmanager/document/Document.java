@@ -4,13 +4,17 @@ import com.corona.documentmanager.DocumentShare.DocumentShare;
 import com.corona.documentmanager.DocumentTags.DocumentTag;
 import com.corona.documentmanager.documentType.DocumentType;
 import com.corona.documentmanager.user.User;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
+import org.hibernate.type.SqlTypes;
 
 
-import javax.persistence.*;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,9 +33,6 @@ public class Document {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Setter
-    @Column(name = "unique_id", nullable = false, length = 24)
-    private String uniqueId;
 
     @Setter
     @Getter
@@ -53,7 +54,7 @@ public class Document {
     @Getter
     @Setter
     @Column(name = "description")
-    @Type(type = "org.hibernate.type.TextType")
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     private String description;
 
     @Getter
@@ -65,7 +66,7 @@ public class Document {
     @Setter
     @Lob
     @Column(name = "text")
-    @Type(type = "org.hibernate.type.TextType")
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     private String text;
 
 
@@ -91,6 +92,12 @@ public class Document {
 
     public Set<DocumentShare> getShares() {
         return shares != null ? shares : new HashSet<>();
+    }
+
+    @PrePersist
+    @PreUpdate
+    protected void onSave() {
+        lastUpdated = Instant.now();
     }
 
 
@@ -123,6 +130,13 @@ public class Document {
                 .anyMatch(t -> t.equals(tag));
     }
 
+    public String getFormattedLastUpdated() {
+        if (lastUpdated == null) {
+            return "";
+        }
+        return lastUpdated.atZone(ZoneId.systemDefault())
+                .format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
+    }
 
 
 

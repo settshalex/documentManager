@@ -25,15 +25,12 @@ public class CommonFile {
         newDocument.setFilename(fileName);
         newDocument.setSha256(sha256hex);
         System.out.println("customUser.user");
-        System.out.println(customUser.user);
-        System.out.println(newDocument.getFilename());
-        System.out.println(newDocument.getMimeType());
+        System.out.println("=====>" + customUser.user);
         System.out.println("customUser.user");
         newDocument.setCreatedBy(customUser.user);
         docType.ifPresent(newDocument::setDocumentType);
         newDocument.setDescription(description);
         newDocument.setMimeType(mime_type);
-        newDocument.setUniqueId("setUniqueId");
         newDocument.setData(file.getBytes());
         return newDocument;
     }

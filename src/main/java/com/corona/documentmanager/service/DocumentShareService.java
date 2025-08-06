@@ -45,13 +45,7 @@ public class DocumentShareService {
             throw new DocumentAlreadySharedException("Il documento è già condiviso con questo utente");
         }
 
-        DocumentShare share = new DocumentShare();
-        share.setDocument(document);
-        share.setSharedWithUser(targetUser);
-        share.setSharedByUser(currentUser.user);
-        share.setSharedAt(Instant.now());
-        share.setPermission(permission);
-
+        DocumentShare share = new DocumentShare(document, targetUser, currentUser.user, permission);
         return shareRepository.save(share);
     }
 

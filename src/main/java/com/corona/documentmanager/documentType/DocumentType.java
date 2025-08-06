@@ -3,7 +3,9 @@ package com.corona.documentmanager.documentType;
 import com.corona.documentmanager.document.Document;
 import org.hibernate.annotations.Type;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -12,12 +14,12 @@ import java.util.Set;
 public class DocumentType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "type", nullable = false)
-    @Type(type = "org.hibernate.type.TextType")
+    @NotEmpty
+    @Column(unique = true)
     private String type;
+
 
     @OneToMany(mappedBy = "documentType")
     private Set<Document> documents = new LinkedHashSet<>();

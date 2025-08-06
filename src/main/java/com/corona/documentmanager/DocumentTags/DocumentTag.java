@@ -4,7 +4,9 @@ import com.corona.documentmanager.document.Document;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+
 import java.time.Instant;
 
 @Entity
@@ -20,9 +22,17 @@ public class DocumentTag {
     @JoinColumn(name = "document_id", nullable = false)
     private Document document;
 
-    @Column(nullable = false)
+    @Column(name = "tag", nullable = false)
     private String tag;
 
-    @Column(name = "created_at")
-    private Instant createdAt = Instant.now();
+    // Costruttore di default richiesto da JPA
+    public DocumentTag() {
+    }
+
+    // Costruttore con parametri per facilità d'uso
+    public DocumentTag(Document document, String tag) {
+        this.document = document;
+        this.tag = tag;
+    }
 }
+
