@@ -1,7 +1,5 @@
-package com.corona.documentmanager.service;
+package com.corona.documentmanager.DocumentShare;
 
-import com.corona.documentmanager.DocumentShare.DocumentShare;
-import com.corona.documentmanager.DocumentShare.DocumentShareRepository;
 import com.corona.documentmanager.document.Document;
 import com.corona.documentmanager.exception.*;
 import com.corona.documentmanager.user.LoggedUser;

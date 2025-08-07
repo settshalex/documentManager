@@ -47,12 +47,11 @@ public class RegistrationController {
         }
 
         try {
-            // Modifica qui - usa il builder della tua classe User
             User newUser = User.builder()
                     .username(userDto.getUsername())
                     .password(passwordEncoder.encode(userDto.getPassword()))
                     .role("USER")
-                    .documents(new LinkedHashSet<>())         // Inizializza le collezioni
+                    .documents(new LinkedHashSet<>())
                     .build();
 
             userService.createUser(newUser);

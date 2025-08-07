@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface DocumentRepository extends JpaRepository<Document, Long>, JpaSpecificationExecutor<Document> {
-    Document findDocumentByTitle(String title);
+    List<Document> findDocumentByTitle(String title);
     List<Document> findByCreatedBy(User creator);
     @Query("SELECT d FROM Document d " +
             "JOIN DocumentShare s ON s.document = d " +

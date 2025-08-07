@@ -1,8 +1,6 @@
-package com.corona.documentmanager.service;
+package com.corona.documentmanager.document;
 
 import com.corona.documentmanager.File.FileFactory;
-import com.corona.documentmanager.document.Document;
-import com.corona.documentmanager.document.DocumentRepository;
 import com.corona.documentmanager.File.File;
 import com.corona.documentmanager.documentType.DocumentType;
 import com.corona.documentmanager.exception.DocumentNotFoundException;

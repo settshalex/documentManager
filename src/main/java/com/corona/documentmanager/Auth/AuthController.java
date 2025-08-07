@@ -2,7 +2,7 @@ package com.corona.documentmanager.Auth;
 
 import com.corona.documentmanager.document.Document;
 import com.corona.documentmanager.exception.UserNotFoundException;
-import com.corona.documentmanager.service.DocumentService;
+import com.corona.documentmanager.document.DocumentService;
 import com.corona.documentmanager.user.User;
 import com.corona.documentmanager.user.UserService;
 import org.springframework.security.core.Authentication;
@@ -47,13 +47,10 @@ public class AuthController
         User currentUser = userService.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Utente non trovato"));
         List<Document> userDocuments = documentService.findDocumentsByUser(currentUser);
-
         List<Document> sharedDocuments = documentService.findDocumentsSharedWithUser(currentUser);
         model.addAttribute("sharedDocuments", sharedDocuments);
-
         model.addAttribute("documents", userDocuments);
         model.addAttribute("user", currentUser);
-        System.out.println("=====> users: " + currentUser.getUsername());
 
         return "index";
     }
