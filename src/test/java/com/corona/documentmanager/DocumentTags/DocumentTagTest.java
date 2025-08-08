@@ -14,9 +14,11 @@ class DocumentTagTest {
 
     @BeforeEach
     void setUp() {
-        documentTag = new DocumentTag();
         document = new Document();
         tag = "newTag";
+        documentTag = new DocumentTag(document, tag);
+        documentTag.setId(1L);
+
     }
 
     @Test

@@ -25,15 +25,7 @@ public class AuthProvider implements AuthenticationProvider {
         try {
             String username = authentication.getName();
             String password = authentication.getCredentials().toString();
-            System.out.println("password: " + password + " =>> " + passwordEncoder.encode(password));
-            System.out.println("username: " + username);
             LoggedUser loggingUser = userDetailsService.loadUserByUsername(username);
-            List<User> users = userDetailsService.list();
-            System.out.println("users: " + users);
-            System.out.println("password: " + password);
-            System.out.println("username: " + username);
-            System.out.println("user->psw: " + loggingUser.getPassword());
-            System.out.println("passwordEncoder.matches: " + passwordEncoder.matches(password, loggingUser.getPassword()));
             if (passwordEncoder.matches(password, loggingUser.getPassword())) {
                 return new UsernamePasswordAuthenticationToken(
                         loggingUser, null, loggingUser.getAuthorities());
