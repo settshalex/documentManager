@@ -12,11 +12,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import jakarta.servlet.http.HttpSession;
 
+import java.util.Optional;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -74,4 +79,17 @@ class AuthControllerTest {
                 .andExpect(redirectedUrl("/login?logout"));
     }
 
+    @Test
+    @WithMockUser(username = "testuser", roles = "USER")
+    void showHomeForm() throws Exception {
+        LoggedUser principal = principal();
+        when(userService.findByUsername("testuser"))
+                .thenReturn(Optional.of(User.builder()
+                        .id(1L).username("testuser").password("pwd").role("USER").build()));
+
+        HttpSession session = mock(HttpSession.class);
+        mockMvc.perform(get("/home").sessionAttr("session", session).with(user(principal)))
+                .andExpect(status().isOk()).andDo(print())
+                .andExpect(view().name("index"));
+    }
 }

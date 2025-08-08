@@ -10,11 +10,4 @@ public class UserAlreadyExistsException extends RuntimeException {
         super(message);
     }
 
-    public UserAlreadyExistsException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public UserAlreadyExistsException(String username, String field) {
-        super(String.format("Un utente con %s '%s' esiste già", field, username));
-    }
 }
