@@ -1,5 +1,6 @@
 package com.corona.documentmanager.document;
 
+import com.corona.documentmanager.DocumentShare.DocumentShare;
 import com.corona.documentmanager.DocumentShare.DocumentShareRepository;
 import com.corona.documentmanager.DocumentShare.DocumentShareService;
 import com.corona.documentmanager.documentType.DocumentType;
@@ -69,16 +70,27 @@ class DocumentRepositoryTest {
 
     @Test
     void findSharedWithUser() {
+        // utente con cui condividere
         User sharedUser = new User();
         sharedUser.setUsername("shared@example.com");
         sharedUser.setPassword("testpsw");
         entityManager.persist(sharedUser);
 
-        documentShareRepository.existsByDocumentAndSharedWithUser(testDocument, sharedUser);
-        entityManager.persist(testDocument);
+        DocumentShare share = new DocumentShare(
+                testDocument,
+                sharedUser,
+                testUser,
+                DocumentShare.SharePermission.READ
+        );
+        entityManager.persist(share);
+
         entityManager.flush();
+        entityManager.clear();
 
         List<Document> found = documentRepository.findSharedWithUser(sharedUser);
+
         assertThat(found).isNotEmpty();
+        assertThat(found).extracting("id").contains(testDocument.getId());
     }
+
 }

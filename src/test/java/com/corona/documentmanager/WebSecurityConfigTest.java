@@ -18,10 +18,6 @@ public class WebSecurityConfigTest {
 
     @Test
     public void testPublicEndpoints() throws Exception {
-        // Test degli endpoint pubblici
-//        mockMvc.perform(get("/css/style.css"))
-//                .andExpect(status().isOk());
-
         mockMvc.perform(get("/login"))
                 .andExpect(status().isOk());
 

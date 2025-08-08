@@ -1,6 +1,7 @@
 package com.corona.documentmanager.DocumentShare;
 
 import com.corona.documentmanager.document.Document;
+import com.corona.documentmanager.documentType.DocumentType;
 import com.corona.documentmanager.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,9 +26,15 @@ class DocumentShareRepositoryTest {
     private User owner;
     private User sharedUser;
     private DocumentShare share;
+    private DocumentType testDocumentType;
 
     @BeforeEach
     void setUp() {
+        testDocumentType = new DocumentType();
+        testDocumentType.setType("TEST/TYPE");
+        entityManager.persist(testDocumentType);
+        entityManager.flush();
+
         owner = new User();
         owner.setUsername("owner");
         entityManager.persist(owner);
@@ -39,6 +46,9 @@ class DocumentShareRepositoryTest {
         document = new Document();
         document.setCreatedBy(owner);
         document.setFilename("test.txt");
+        document.setDocumentType(testDocumentType);
+        document.setTitle("Test Document");
+        document.setMimeType("TEST/TYPE");
         entityManager.persist(document);
 
         share = new DocumentShare(document, sharedUser, owner, DocumentShare.SharePermission.READ);

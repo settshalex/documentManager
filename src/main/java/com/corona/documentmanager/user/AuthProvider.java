@@ -42,7 +42,7 @@ public class AuthProvider implements AuthenticationProvider {
                 throw new BadCredentialsException("Email or password not valid");
             }
         } catch (Exception e) {
-            throw new BadCredentialsException("Email or password not valid");
+            throw new BadCredentialsException("Email or password not valid" + e.getMessage());
         }
 
 

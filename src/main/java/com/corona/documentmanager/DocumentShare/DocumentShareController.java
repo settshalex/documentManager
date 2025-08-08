@@ -65,7 +65,7 @@ public class DocumentShareController {
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Si è verificato un errore interno"));
+                    .body(Map.of("error", "Si è verificato un errore interno " + e.getMessage()));
         }
     }
 

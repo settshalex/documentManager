@@ -27,15 +27,10 @@ public class TextDocument extends CommonFile implements File {
                                       String title, String description, String mime_type,
                                       Optional<DocumentType> docType) throws IOException {
         Document document = super.prepareNewDocument(file, customUser, title, description, mime_type, docType);
-
-        // Estrai il testo dal file
         String text = new String(file.getBytes(), StandardCharsets.UTF_8);
         document.setText(text);
-
         Set<String> keywords = extractKeywords(text);
         keywords.forEach(document::addTag);
-        System.out.println("keywords " + keywords);
-
         return document;
     }
 

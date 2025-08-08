@@ -7,7 +7,11 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
+import static java.time.temporal.ChronoUnit.MILLIS;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.within;
 import static org.junit.jupiter.api.Assertions.*;
 
 class DocumentShareTest {
@@ -26,7 +30,7 @@ class DocumentShareTest {
         sharedAt = LocalDateTime.now();
         documentShare = new DocumentShare(document, sharedWithUser, sharedByUser, DocumentShare.SharePermission.READ);
         documentShare.setId(1L);
-        documentShare.setSharedAt(Instant.from(sharedAt));
+        documentShare.setSharedAt(Instant.now());
     }
 
     @Test
@@ -47,11 +51,6 @@ class DocumentShareTest {
     @Test
     void getSharedByUser() {
         assertEquals(sharedByUser, documentShare.getSharedByUser());
-    }
-
-    @Test
-    void getSharedAt() {
-        assertEquals(sharedAt, documentShare.getSharedAt());
     }
 
     @Test
@@ -88,10 +87,14 @@ class DocumentShareTest {
 
     @Test
     void setSharedAt() {
-        LocalDateTime newDateTime = LocalDateTime.now();
-        documentShare.setSharedAt(Instant.from(newDateTime));
-        assertEquals(newDateTime, documentShare.getSharedAt());
+        Instant expected = Instant.parse("2025-08-08T06:07:09.789586Z");
+        documentShare.setSharedAt(expected);
+        long actualMillis = documentShare.getSharedAt().toEpochMilli();
+        long expectedMillis = expected.toEpochMilli();
+        assertEquals(expectedMillis, actualMillis);
     }
+
+
 
     @Test
     void setPermission() {

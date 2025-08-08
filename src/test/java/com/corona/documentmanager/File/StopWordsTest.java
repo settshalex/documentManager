@@ -8,5 +8,9 @@ class StopWordsTest {
 
     @Test
     void isStopWord() {
+        StopWords stopWords = new StopWords();
+        assertTrue(stopWords.isStopWord("allo"));
+        assertTrue(stopWords.isStopWord("questo"));
+        assertTrue(stopWords.isStopWord("li"));
     }
 }
