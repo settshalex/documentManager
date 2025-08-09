@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
-public class TextDocument extends CommonFile implements File {
+public class TextDocument extends CommonFile implements File, SupportsMime {
     private static final int MAX_KEYWORDS = 10;
     private static final int MIN_WORD_LENGTH = 4;
 
@@ -73,4 +73,10 @@ public class TextDocument extends CommonFile implements File {
     public String language() {
         return "it";
     }
+
+    @Override
+    public boolean supports(String mime) {
+        return mime != null && mime.startsWith("text/");
+    }
+
 }

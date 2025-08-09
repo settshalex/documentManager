@@ -2,6 +2,7 @@ package com.corona.documentmanager.document;
 
 import com.corona.documentmanager.DocumentTags.DocumentTag;
 import com.corona.documentmanager.DocumentTags.DocumentTagRepository;
+import com.corona.documentmanager.File.FileFactory;
 import com.corona.documentmanager.documentType.DocumentType;
 import com.corona.documentmanager.documentType.DocumentTypeRepository;
 import com.corona.documentmanager.user.LoggedUser;
@@ -19,7 +20,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -38,6 +43,9 @@ class DocumentControllerTest {
 
     @MockBean
     private DocumentTypeRepository documentTypeRepository;
+
+    @MockBean
+    private FileFactory fileFactory;
 
     @MockBean
     private DocumentRepository documentRepository;
@@ -106,12 +114,14 @@ class DocumentControllerTest {
                 "text/plain",
                 "Descrizione di prova".getBytes(StandardCharsets.UTF_8)
         );
-
+        when(documentTypeRepository.findByType(anyString())).thenReturn(Optional.empty());
+        com.corona.documentmanager.File.File strategy = mock(com.corona.documentmanager.File.File.class);
+        when(fileFactory.getFileManager(anyString())).thenReturn(strategy);
         mockMvc.perform(multipart("/api/document/")
                         .file(file)
                         .file(title)
                         .file(description).with(user(principal()))
-                        .with(csrf()))             // aggiungi il CSRF se la sicurezza è attiva
+                        .with(csrf()))
                 .andExpect(status().isOk());
 
     }

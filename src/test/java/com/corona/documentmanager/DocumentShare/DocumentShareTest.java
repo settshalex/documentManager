@@ -20,14 +20,12 @@ class DocumentShareTest {
     private Document document;
     private User sharedWithUser;
     private User sharedByUser;
-    private LocalDateTime sharedAt;
 
     @BeforeEach
     void setUp() {
         document = new Document();
         sharedWithUser = new User();
         sharedByUser = new User();
-        sharedAt = LocalDateTime.now();
         documentShare = new DocumentShare(document, sharedWithUser, sharedByUser, DocumentShare.SharePermission.READ);
         documentShare.setId(1L);
         documentShare.setSharedAt(Instant.now());

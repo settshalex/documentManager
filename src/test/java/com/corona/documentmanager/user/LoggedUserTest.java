@@ -17,8 +17,6 @@ class LoggedUserTest {
     private final Long userId = 1L;
     private final String username = "testUser@gmail.com";
     private final String password = "password123";
-    private final Collection<GrantedAuthority> authorities =
-            Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
 
     @BeforeEach
     void setUp() {

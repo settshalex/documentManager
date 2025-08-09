@@ -58,6 +58,7 @@ class MultipleFileUploadDTOTest {
         dto2.setDocumentType("Test Type");
 
         assertEquals(dto, dto2);
+        assertTrue(dto.equals(dto2));
     }
 
     @Test
@@ -65,6 +66,7 @@ class MultipleFileUploadDTOTest {
         MultipleFileUploadDTO dto2 = new MultipleFileUploadDTO();
         assertTrue(dto.canEqual(dto2));
     }
+
 
     @Test
     void testHashCode() {

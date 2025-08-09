@@ -9,12 +9,14 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.drew.metadata.exif.GpsDirectory;
 import com.drew.metadata.jpeg.JpegDirectory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Optional;
 
-public class ImageDocument extends CommonFile implements File{
+@Component
+public class ImageDocument extends CommonFile implements File, SupportsMime{
     /**
      * @param file
      * @return
@@ -86,5 +88,10 @@ public class ImageDocument extends CommonFile implements File{
     @Override
     public String language() {
         return null;
+    }
+
+    @Override
+    public boolean supports(String mime) {
+        return mime != null && mime.startsWith("image/");
     }
 }

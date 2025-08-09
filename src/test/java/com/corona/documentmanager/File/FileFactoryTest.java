@@ -2,24 +2,33 @@ package com.corona.documentmanager.File;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class FileFactoryTest {
 
     @Test
-    void getFileManager() {
-        FileFactory fileFactory = new FileFactory();
-        File a = fileFactory.getFileManager("text/");
-        assertNotNull(a);
-        assertEquals(a.getClass(), TextDocument.class);
-        File b = fileFactory.getFileManager("audio/");
-        assertNotNull(b);
-        assertEquals(b.getClass(), AudioDocument.class);
-        File c = fileFactory.getFileManager("application/");
-        assertNotNull(c);
-        assertEquals(c.getClass(), ApplicationDocument.class);
-        File d = fileFactory.getFileManager("image/");
-        assertNotNull(d);
-        assertEquals(d.getClass(), ImageDocument.class);
+    void getFileManager_selectsMatchingStrategy() {
+        File txt = mock(File.class, withSettings().extraInterfaces(SupportsMime.class));
+        when(((SupportsMime) txt).supports("text/plain")).thenReturn(true);
+
+        File pdf = mock(File.class, withSettings().extraInterfaces(SupportsMime.class));
+        when(((SupportsMime) pdf).supports("text/plain")).thenReturn(false);
+
+        FileFactory factory = new FileFactory(List.of(txt, pdf));
+        File result = factory.getFileManager("text/plain");
+
+        assertSame(txt, result);
+    }
+
+    @Test
+    void getFileManager_unsupported_throws() {
+        File any = mock(File.class, withSettings().extraInterfaces(SupportsMime.class));
+        when(((SupportsMime) any).supports("audio/mpeg")).thenReturn(false);
+
+        FileFactory factory = new FileFactory(List.of(any));
+        assertThrows(IllegalArgumentException.class, () -> factory.getFileManager("audio/mpeg"));
     }
 }

@@ -3,11 +3,13 @@ package com.corona.documentmanager.File;
 import com.corona.documentmanager.document.Document;
 import com.corona.documentmanager.documentType.DocumentType;
 import com.corona.documentmanager.user.LoggedUser;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Optional;
 
-public class ApplicationDocument extends CommonFile implements File {
+@Component
+public class ApplicationDocument extends CommonFile implements File, SupportsMime {
     /**
      * @param file
      * @return
@@ -32,4 +34,10 @@ public class ApplicationDocument extends CommonFile implements File {
     public String language() {
         return null;
     }
+
+    @Override
+    public boolean supports(String mime) {
+        return mime != null && mime.startsWith("application/");
+    }
+
 }

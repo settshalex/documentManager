@@ -31,14 +31,16 @@ public class DocumentController {
     private final DocumentService documentService;
     private final DocumentRepository documentRepository;
     private final DocumentTypeRepository documentTypeRepository;
+    private final FileFactory fileFactory;
 
 
     @Autowired
     public DocumentController(DocumentService documentService,
-                              DocumentTypeRepository documentTypeRepository, DocumentRepository documentRepository) {
+                              DocumentTypeRepository documentTypeRepository, DocumentRepository documentRepository, FileFactory fileFactory) {
         this.documentService = documentService;
         this.documentTypeRepository = documentTypeRepository;
         this.documentRepository = documentRepository;
+        this.fileFactory = fileFactory;
     }
 
     @GetMapping("/documents/download/{id}")
@@ -73,43 +75,37 @@ public class DocumentController {
 
 
     @PostMapping("/api/document/")
-    public ResponseEntity<Object> newDocument(Authentication authentication, @RequestPart MultipartFile file, @RequestPart String title, @RequestPart String description) {
-
-        LoggedUser customUser = (LoggedUser)authentication.getPrincipal();
-        Long userId = customUser.getUserId();
-        System.out.println(userId);
-        System.out.println("Title:" + title);
-        System.out.println("description:" + title);
-
-        String mime_type = "";
+    public ResponseEntity<Object> newDocument(Authentication authentication,
+                                              @RequestPart MultipartFile file,
+                                              @RequestPart String title,
+                                              @RequestPart String description) {
         try {
-            InputStream stream = file.getInputStream();      // open the stream
-            mime_type = FileParser.parse(stream); // parse the stream
+            LoggedUser customUser = (LoggedUser) authentication.getPrincipal();
 
-        } catch (IOException | TikaException | SAXException ignored) {
-
-        }
-
-        try {
-            FileFactory fileFactory= new FileFactory();
-            System.out.println("mime_type");
-            System.out.println(mime_type);
-            File fileManager = fileFactory.getFileManager(mime_type);
-            Optional<DocumentType> docType = documentTypeRepository.findByType(mime_type);
-            if (docType.isEmpty()) {
-                DocumentType documentType = new DocumentType();
-                documentType.setType(mime_type);
-                documentTypeRepository.save(documentType);
-                docType = Optional.of(documentType);
+            String mimeType = "";
+            try (InputStream stream = file.getInputStream()) {
+                mimeType = FileParser.parse(stream);
+            } catch (IOException | TikaException | SAXException ignored) {
             }
-            Document newDocument = fileManager.createNewDocument(file, customUser, title, description, mime_type, docType);
+
+            Optional<DocumentType> docType = documentTypeRepository.findByType(mimeType);
+            if (docType.isEmpty()) {
+                DocumentType dt = new DocumentType();
+                dt.setType(mimeType);
+                documentTypeRepository.save(dt);
+                docType = Optional.of(dt);
+            }
+
+            File fileManager = fileFactory.getFileManager(mimeType);
+            Document newDocument = fileManager.createNewDocument(file, customUser, title, description, mimeType, docType);
             documentRepository.save(newDocument);
+
+            return ResponseEntity.ok("File uploaded successfully.");
         } catch (Exception e) {
-            System.out.println("=====> error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error" + e.getMessage());
         }
-        return ResponseEntity.ok("File uploaded successfully.");
     }
+
 
     @PostMapping("/api/upload/multiple")
     public ResponseEntity<?> uploadMultipleFiles(Authentication authentication,
@@ -133,7 +129,7 @@ public class DocumentController {
                             } else {
                                 documentType = docType.get();
                             }
-                            System.out.println("Documento salvataggio in corso " + file.getOriginalFilename());
+                            System.out.println("Documento salvataggio in corso " + file.getOriginalFilename() + " " + documentType.getType());
                             Document document = documentService.processFileAsync(
                                     file,
                                     file.getOriginalFilename(),

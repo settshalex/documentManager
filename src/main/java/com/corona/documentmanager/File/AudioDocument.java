@@ -8,11 +8,13 @@ import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Optional;
 
-public class AudioDocument extends CommonFile implements File{
+@Component
+public class AudioDocument extends CommonFile implements File, SupportsMime{
     @Override
     public Document createNewDocument(MultipartFile file, LoggedUser customUser,
                                       String title, String description, String mime_type, Optional<DocumentType> docType) throws IOException {
@@ -23,7 +25,7 @@ public class AudioDocument extends CommonFile implements File{
         return super.prepareNewDocument(file, customUser, title, enhancedDescription, mime_type, docType);
     }
 
-    private String extractAudioMetadata(MultipartFile file) throws IOException {
+    private String extractAudioMetadata(MultipartFile file) {
         StringBuilder metadata = new StringBuilder();
         try {
             AudioFile audioFile = AudioFileIO.read(file.getResource().getFile());
@@ -56,4 +58,8 @@ public class AudioDocument extends CommonFile implements File{
         return null;
     }
 
+    @Override
+    public boolean supports(String mime) {
+        return mime != null && mime.startsWith("application/");
+    }
 }

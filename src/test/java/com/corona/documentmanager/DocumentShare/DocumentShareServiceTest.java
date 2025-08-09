@@ -64,6 +64,36 @@ class DocumentShareServiceTest {
     }
 
     @Test
+    void shareDocumentNotOwned() {
+        User user = new User();
+        user.setUsername("secondTestUser");
+        Document document = new Document();
+        document.setCreatedBy(user);
+        User targetUser = new User();
+        targetUser.setUsername("targetUser");
+
+        when(documentRepository.findById(1L)).thenReturn(Optional.of(document));
+        assertThrows(UnauthorizedAccessException.class, () -> {
+            documentShareService.shareDocument(1L, "targetUser",
+                    DocumentShare.SharePermission.READ, currentUser);
+        });
+    }
+
+    @Test
+    void shareDocumentAlreadyShared() {
+        User targetUser = new User();
+        targetUser.setUsername("targetUser");
+
+        when(documentRepository.findById(1L)).thenReturn(Optional.of(document));
+        when(userService.findByUsername("targetUser")).thenReturn(Optional.of(targetUser));
+        when(shareRepository.existsByDocumentAndSharedWithUser(document, targetUser)).thenReturn(true);
+        assertThrows(DocumentAlreadySharedException.class, () -> {
+            documentShareService.shareDocument(1L, "targetUser",
+                    DocumentShare.SharePermission.READ, currentUser);
+        });
+    }
+
+    @Test
     void getDocumentShares() {
         List<DocumentShare> shares = Arrays.asList(new DocumentShare(), new DocumentShare());
 
