@@ -9,26 +9,43 @@ import org.jaudiotagger.audio.AudioHeader;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
-public class AudioDocument extends CommonFile implements File, SupportsMime{
+public class AudioDocument extends CommonFile implements FileManager, SupportsMime{
+
+    private static final Map<String, String> MIME_TO_EXT = Map.of(
+            "audio/wav", "wav",
+            "audio/mpeg", "mp3",
+            "audio/x-wav", "wav",
+            "audio/ogg", "ogg"
+    );
+
+
     @Override
     public Document createNewDocument(MultipartFile file, LoggedUser customUser,
                                       String title, String description, String mime_type, Optional<DocumentType> docType) throws IOException {
 
-        String audioMetadata = extractAudioMetadata(file);
+        File tempFile = File.createTempFile(file.getName(), "." + getExtension(file));
+        file.transferTo(tempFile);
+        System.out.println(tempFile.getAbsolutePath());
+        String audioMetadata = extractAudioMetadata(tempFile);
         String enhancedDescription = description + "\n\nMetadati Audio:\n" + audioMetadata;
 
         return super.prepareNewDocument(file, customUser, title, enhancedDescription, mime_type, docType);
     }
 
-    private String extractAudioMetadata(MultipartFile file) {
+    private String extractAudioMetadata(File fileAudio) {
         StringBuilder metadata = new StringBuilder();
         try {
-            AudioFile audioFile = AudioFileIO.read(file.getResource().getFile());
+            AudioFile audioFile = AudioFileIO.read(fileAudio);
             AudioHeader header = audioFile.getAudioHeader();
             Tag tag = audioFile.getTag();
 
@@ -48,6 +65,30 @@ public class AudioDocument extends CommonFile implements File, SupportsMime{
         return metadata.toString();
     }
 
+    public static String getExtension(MultipartFile file) {
+        if (file == null) return "";
+
+        String original = file.getOriginalFilename();
+        if (original != null) {
+            String filename = Paths.get(original).getFileName().toString();
+            String ext = StringUtils.getFilenameExtension(filename);
+            if (ext != null && !ext.isBlank()) {
+                return ext.toLowerCase();
+            }
+        }
+
+        String contentType = file.getContentType();
+        if (contentType != null) {
+            String mapped = MIME_TO_EXT.get(contentType.toLowerCase());
+            if (mapped != null) {
+                return mapped;
+            }
+        }
+
+        return "";
+    }
+
+
     @Override
     public boolean isDocument() {
         return false;
@@ -60,6 +101,6 @@ public class AudioDocument extends CommonFile implements File, SupportsMime{
 
     @Override
     public boolean supports(String mime) {
-        return mime != null && mime.startsWith("application/");
+        return mime != null && mime.startsWith("audio/");
     }
 }

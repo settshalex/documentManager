@@ -1,7 +1,7 @@
 package com.corona.documentmanager.document;
 
 import com.corona.documentmanager.File.FileFactory;
-import com.corona.documentmanager.File.File;
+import com.corona.documentmanager.File.FileManager;
 import com.corona.documentmanager.documentType.DocumentType;
 import com.corona.documentmanager.exception.DocumentNotFoundException;
 import com.corona.documentmanager.user.LoggedUser;
@@ -32,7 +32,7 @@ class DocumentServiceTest {
     @Mock
     private MultipartFile multipartFile;
     @Mock
-    private File fileManager;
+    private FileManager fileManager;
 
     private DocumentService documentService;
 

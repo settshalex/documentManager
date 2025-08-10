@@ -10,7 +10,7 @@ import java.io.InputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FileParserTest {
+class FileManagerParserTest {
 
     @Test
     void parse() throws TikaException, IOException, SAXException {

@@ -44,7 +44,6 @@ class ImageDocumentTest {
     void createNewDocument() throws IOException, ImageWriteException {
         BufferedImage image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
 
-        // 🔧 2. Scrivi l'immagine in un array di byte (simula un file JPEG)
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(image, "jpg", baos);
         byte[] imageBytes = baos.toByteArray();

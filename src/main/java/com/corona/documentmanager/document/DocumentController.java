@@ -1,8 +1,7 @@
 package com.corona.documentmanager.document;
-import com.corona.documentmanager.DocumentShare.DocumentShare;
+import com.corona.documentmanager.File.FileManager;
 import com.corona.documentmanager.dto.DocumentTagDTO;
 import com.corona.documentmanager.exception.DocumentNotFoundException;
-import com.corona.documentmanager.File.File;
 import com.corona.documentmanager.File.FileFactory;
 import com.corona.documentmanager.File.FileParser;
 import com.corona.documentmanager.documentType.DocumentType;
@@ -96,7 +95,7 @@ public class DocumentController {
                 docType = Optional.of(dt);
             }
 
-            File fileManager = fileFactory.getFileManager(mimeType);
+            FileManager fileManager = fileFactory.getFileManager(mimeType);
             Document newDocument = fileManager.createNewDocument(file, customUser, title, description, mimeType, docType);
             documentRepository.save(newDocument);
 

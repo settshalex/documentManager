@@ -1,23 +1,18 @@
 package com.corona.documentmanager.document;
 
-import com.corona.documentmanager.DocumentTags.DocumentTag;
-import com.corona.documentmanager.DocumentTags.DocumentTagRepository;
 import com.corona.documentmanager.File.FileFactory;
+import com.corona.documentmanager.File.FileManager;
 import com.corona.documentmanager.documentType.DocumentType;
 import com.corona.documentmanager.documentType.DocumentTypeRepository;
 import com.corona.documentmanager.user.LoggedUser;
 import com.corona.documentmanager.user.User;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -115,7 +110,7 @@ class DocumentControllerTest {
                 "Descrizione di prova".getBytes(StandardCharsets.UTF_8)
         );
         when(documentTypeRepository.findByType(anyString())).thenReturn(Optional.empty());
-        com.corona.documentmanager.File.File strategy = mock(com.corona.documentmanager.File.File.class);
+        FileManager strategy = mock(FileManager.class);
         when(fileFactory.getFileManager(anyString())).thenReturn(strategy);
         mockMvc.perform(multipart("/api/document/")
                         .file(file)

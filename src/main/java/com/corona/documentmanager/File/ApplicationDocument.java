@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 @Component
-public class ApplicationDocument extends CommonFile implements File, SupportsMime {
+public class ApplicationDocument extends CommonFile implements FileManager, SupportsMime {
     /**
      * @param file
      * @return

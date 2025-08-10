@@ -7,25 +7,25 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class FileFactoryTest {
+class FileManagerFactoryTest {
 
     @Test
     void getFileManager_selectsMatchingStrategy() {
-        File txt = mock(File.class, withSettings().extraInterfaces(SupportsMime.class));
+        FileManager txt = mock(FileManager.class, withSettings().extraInterfaces(SupportsMime.class));
         when(((SupportsMime) txt).supports("text/plain")).thenReturn(true);
 
-        File pdf = mock(File.class, withSettings().extraInterfaces(SupportsMime.class));
+        FileManager pdf = mock(FileManager.class, withSettings().extraInterfaces(SupportsMime.class));
         when(((SupportsMime) pdf).supports("text/plain")).thenReturn(false);
 
         FileFactory factory = new FileFactory(List.of(txt, pdf));
-        File result = factory.getFileManager("text/plain");
+        FileManager result = factory.getFileManager("text/plain");
 
         assertSame(txt, result);
     }
 
     @Test
     void getFileManager_unsupported_throws() {
-        File any = mock(File.class, withSettings().extraInterfaces(SupportsMime.class));
+        FileManager any = mock(FileManager.class, withSettings().extraInterfaces(SupportsMime.class));
         when(((SupportsMime) any).supports("audio/mpeg")).thenReturn(false);
 
         FileFactory factory = new FileFactory(List.of(any));

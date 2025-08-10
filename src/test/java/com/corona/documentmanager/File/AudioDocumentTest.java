@@ -13,11 +13,10 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Optional;
+import java.io.*;
 import java.io.File;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class AudioDocumentTest {
@@ -43,12 +42,10 @@ class AudioDocumentTest {
 
         MockMultipartFile audioFile = new MockMultipartFile(
                 "file",
-                "test-audio.wav",
+                "audio.wav",
                 "audio/wav",
                 wavBytes
         );
-        File tempFile = File.createTempFile("test-audio", ".wav");
-        audioFile.transferTo(tempFile);
         User u = User.builder()
                 .id(1L)
                 .username("testuser")
@@ -73,4 +70,5 @@ class AudioDocumentTest {
     void language() {
         assertNull(audioDocument.language());
     }
+
 }

@@ -16,7 +16,7 @@ import java.util.Date;
 import java.util.Optional;
 
 @Component
-public class ImageDocument extends CommonFile implements File, SupportsMime{
+public class ImageDocument extends CommonFile implements FileManager, SupportsMime{
     /**
      * @param file
      * @return

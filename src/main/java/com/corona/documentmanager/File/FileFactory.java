@@ -2,14 +2,14 @@ package com.corona.documentmanager.File;
 import java.util.List;
 
 public class FileFactory extends AbstractFactory{
-    private final List<File> strategies;
+    private final List<FileManager> strategies;
 
-    public FileFactory(List<File> strategies) {
+    public FileFactory(List<FileManager> strategies) {
         this.strategies = strategies;
     }
 
     @Override
-    public File getFileManager(String mime) {
+    public FileManager getFileManager(String mime) {
         if (mime == null) {
             throw new IllegalArgumentException("MIME nullo non supportato");
         }

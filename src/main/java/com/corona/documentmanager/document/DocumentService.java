@@ -1,7 +1,7 @@
 package com.corona.documentmanager.document;
 
 import com.corona.documentmanager.File.FileFactory;
-import com.corona.documentmanager.File.File;
+import com.corona.documentmanager.File.FileManager;
 import com.corona.documentmanager.documentType.DocumentType;
 import com.corona.documentmanager.exception.DocumentNotFoundException;
 import com.corona.documentmanager.user.LoggedUser;
@@ -51,7 +51,7 @@ public class DocumentService {
 
         try {
             String mimeType = file.getContentType();
-            File fileManager = fileFactory.getFileManager(mimeType);
+            FileManager fileManager = fileFactory.getFileManager(mimeType);
             Document document = fileManager.createNewDocument(
                     file,
                     user,
