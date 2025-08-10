@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,17 +44,12 @@ public class DocumentController {
     }
 
     @GetMapping("/documents/download/{id}")
+    @PreAuthorize("@documentPermission.canRead(@documentService.findDocumentById(#id), principal)")
     public ResponseEntity<ByteArrayResource> downloadDocument(Authentication authentication, @PathVariable Long id) {
         try {
-            LoggedUser customUser = (LoggedUser)authentication.getPrincipal();
             Document document = documentService.findDocumentById(id);
-            if (CheckReadPermission(document, customUser)){
-                ByteArrayResource resource = new ByteArrayResource(document.getData());
-                return createDocumentResponse(document, resource);
-            } else {
-                throw new PermissionDeniedException("User does not have permission to download this document");
-            }
-
+            ByteArrayResource resource = new ByteArrayResource(document.getData());
+            return createDocumentResponse(document, resource);
         } catch (DocumentNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (PermissionDeniedException e) {
@@ -178,6 +174,7 @@ public class DocumentController {
     }
 
     @PostMapping("/api/document/{id}/tags")
+    @PreAuthorize("@documentPermission.canWrite(@documentService.findDocumentById(#id), principal)")
     public ResponseEntity<?> addTag(@PathVariable Long id,
                                     @RequestBody DocumentTagDTO tagDTO,
                                     Authentication authentication) {
@@ -185,14 +182,6 @@ public class DocumentController {
         if (document == null) {
             return ResponseEntity.notFound().build();
         }
-
-        LoggedUser user = (LoggedUser) authentication.getPrincipal();
-
-        if (!CheckWritePermission(document, user)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Non hai i permessi per modificare i tag di questo documento");
-        }
-
         document.addTag(tagDTO.getTag());
         documentService.save(document);
 
@@ -201,74 +190,45 @@ public class DocumentController {
 
 
     @DeleteMapping("/api/document/{id}/tags/{tag}")
+    @PreAuthorize("@documentPermission.canWrite(@documentService.findDocumentById(#id), principal)")
     public ResponseEntity<?> removeTag(@PathVariable Long id, @PathVariable String tag, Authentication authentication) {
         LoggedUser user = (LoggedUser) authentication.getPrincipal();
         Document document = documentService.findDocumentById(id);
         if (document == null) {
             return ResponseEntity.notFound().build();
         }
-
-        if (!CheckWritePermission(document, user)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Non hai i permessi per cancellare i tag di questo documento");
-        }
         document.removeTag(tag);
         documentService.save(document);
-
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/api/document/{id}/tags")
+    @PreAuthorize("@documentPermission.canRead(@documentService.findDocumentById(#id), principal)")
     public ResponseEntity<Set<String>> getTags(@PathVariable Long id, Authentication authentication) {
         LoggedUser user = (LoggedUser) authentication.getPrincipal();
         Document document = documentService.findDocumentById(id);
         if (document == null) {
             return ResponseEntity.notFound().build();
         }
-        if (CheckReadPermission(document, user)) {
-            return ResponseEntity.ok(
-                    document.getTags() != null ? document.getTags() : new HashSet<>()
-            );
-        } else {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
+        return ResponseEntity.ok(
+                document.getTags() != null ? document.getTags() : new HashSet<>()
+        );
     }
+
     @PutMapping("/api/document/{id}/description")
+    @PreAuthorize("@documentPermission.canWrite(@documentService.findDocumentById(#id), principal)")
     public ResponseEntity<?> updateDescription(@PathVariable Long id,
                                                @RequestBody String description,
                                                Authentication authentication) {
-        LoggedUser user = (LoggedUser) authentication.getPrincipal();
         Document document = documentService.findDocumentById(id);
 
         if (document == null) {
             return ResponseEntity.notFound().build();
         }
-
-        if (!CheckWritePermission(document, user)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Non hai i permessi per modificare la descrizione di questo documento");
-        }
-
         document.setDescription(description);
         documentService.save(document);
 
         return ResponseEntity.ok().build();
-    }
-
-    private Boolean CheckWritePermission(Document document, LoggedUser user){
-       System.out.println("CheckWritePermission "+document.getShares());
-        return document.getCreatedBy().getId().equals(user.getUserId()) ||
-                document.getShares().stream()
-                        .anyMatch(share -> share.getSharedWithUser().getId().equals(user.getUserId())
-                                && share.getPermission().toString().equals("WRITE"));
-    }
-    
-    private Boolean CheckReadPermission(Document document, LoggedUser user){
-        return document.getCreatedBy().getId().equals(user.getUserId()) ||
-                document.getShares().stream()
-                        .anyMatch(share -> share.getSharedWithUser().getId().equals(user.getUserId())
-                                && (share.getPermission().toString().equals("READ") || share.getPermission().toString().equals("WRITE")));
     }
 
 }
