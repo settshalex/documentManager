@@ -15,10 +15,10 @@
                 <div class="card-body">
                     <form id="singleUploadForm" onsubmit="handleSingleUpload(event)">
                         <div class="mb-3">
-                            <label for="fileManager" class="form-label">Seleziona fileManager</label>
-                            <input type="fileManager" class="form-control" id="fileManager" required>
+                            <label for="file" class="form-label">Seleziona file</label>
+                            <input type="file" class="form-control" id="file" required>
                             <div class="invalid-feedback">
-                                Seleziona un fileManager da caricare.
+                                Seleziona un file da caricare.
                             </div>
                         </div>
 
@@ -52,9 +52,9 @@
                     <form id="multipleUploadForm" onsubmit="handleMultipleUpload(event)">
                         <div class="mb-3">
                             <label for="files" class="form-label">Seleziona files</label>
-                            <input type="fileManager" class="form-control" id="files" multiple required>
+                            <input type="file" class="form-control" id="files" multiple required>
                             <div class="invalid-feedback">
-                                Seleziona almeno un fileManager da caricare.
+                                Seleziona almeno un file da caricare.
                             </div>
                         </div>
 
@@ -73,7 +73,7 @@
         event.preventDefault();
 
         const formData = new FormData();
-        formData.append('fileManager', document.getElementById('fileManager').files[0]);
+        formData.append('file', document.getElementById('file').files[0]);
         formData.append('title', document.getElementById('singleTitle').value);
         formData.append('description', document.getElementById('singleDescription').value);
 
@@ -91,7 +91,7 @@
             }
         } catch (error) {
             console.error('Errore:', error);
-            alert('Si è verificato un errore durante il caricamento del fileManager');
+            alert('Si è verificato un errore durante il caricamento del file');
         }
     }
 
@@ -101,8 +101,8 @@
         const formData = new FormData();
         const files = document.getElementById('files').files;
 
-        for (let fileManager of files) {
-            formData.append('files', fileManager);
+        for (let file of files) {
+            formData.append('files', file);
         }
 
         try {
