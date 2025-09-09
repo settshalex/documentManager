@@ -11,9 +11,6 @@ create table public.users
     role        varchar(30) default 'USER'::character varying
 );
 
-alter table public.users
-    owner to postgres;
-
 create unique index users_id_uindex
     on public.users (id);
 
@@ -27,9 +24,6 @@ create table public.document_type
             primary key,
     type text not null
 );
-
-alter table public.document_type
-    owner to postgres;
 
 create table public.documents
 (
@@ -54,9 +48,6 @@ create table public.documents
     mime_type     varchar(255),
     filename      text
 );
-
-alter table public.documents
-    owner to postgres;
 
 create unique index documents_id_uindex
     on public.documents (id);

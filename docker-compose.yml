@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: document_db
+    environment:
+      POSTGRES_DB: documentdb
+      POSTGRES_USER: document
+      POSTGRES_PASSWORD: secret
+      TZ: Europe/Rome
+    ports:
+      - "5433:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U document -d documentdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: document_app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      JAVA_TOOL_OPTIONS: >
+        -Djava.util.prefs.userRoot=/tmp/.java/.userPrefs
+        -Djava.util.prefs.systemRoot=/tmp/.java/.systemPrefs
+      POSTGRES_DB_PORT: 5432
+      POSTGRES_DB_HOST: db
+      POSTGRES_DB_NAME: documentdb
+      POSTGRES_DB_USERNAME: document
+      POSTGRES_DB_PASSWORD: secret
+    ports:
+      - "8080:8080"
+
+volumes:
+  dbdata:
