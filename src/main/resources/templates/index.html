@@ -84,12 +84,13 @@
                                        title="Condividi">
                                         <i class="bi bi-share"></i>
                                     </a>
-                                    <a th:href="@{/documents/delete/{id}(id=${doc.id})}"
-                                       class="btn btn-sm btn-danger"
-                                       onclick="return confirm('Sei sicuro di voler eliminare questo documento?')"
-                                       title="Elimina">
+                                    <button type="button" class="btn btn-sm btn-danger"
+                                            th:attr="data-id=${doc.id}"
+                                            onclick="deleteDoc(this)"
+                                            title="Elimina">
                                         <i class="bi bi-trash"></i>
-                                    </a>
+
+
                                 </div>
                             </td>
                         </tr>
@@ -233,6 +234,24 @@
 </main>
 <script th:inline="javascript">
     let tagModal;
+
+    function deleteDoc(btn) {
+        if (!confirm('Sei sicuro di voler eliminare questo documento?')) return;
+
+        const id = btn.getAttribute('data-id');
+
+        fetch(`/api/document/${id}`, {
+            method: 'DELETE',
+        }).then(res => {
+            if (res.ok) {
+                location.reload();
+            } else {
+                return res.text().then(t => { throw new Error(t || 'Errore eliminazione'); });
+            }
+        }).catch(err => {
+            alert('Eliminazione fallita: ' + err.message);
+        });
+    }
 
     document.addEventListener('DOMContentLoaded', function() {
         tagModal = new bootstrap.Modal(document.getElementById('addTagModal'));

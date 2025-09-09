@@ -188,6 +188,17 @@ public class DocumentController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/api/document/{id}")
+    @PreAuthorize("@documentPermission.canWrite(@documentService.findDocumentById(#id), principal)")
+    public ResponseEntity<?> deleteDoc(@PathVariable Long id, Authentication authentication) {
+        Document document = documentService.findDocumentById(id);
+        if (document == null) {
+            return ResponseEntity.notFound().build();
+        }
+        documentRepository.delete(document);
+        return ResponseEntity.noContent().build();
+    }
+
 
     @DeleteMapping("/api/document/{id}/tags/{tag}")
     @PreAuthorize("@documentPermission.canWrite(@documentService.findDocumentById(#id), principal)")
